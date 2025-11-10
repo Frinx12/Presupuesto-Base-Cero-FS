@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Iniciar sesión — Presupuesto base cero FS</title>
+
+    <!-- Fuentes e íconos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Rounded"
+        rel="stylesheet" />
+
+    <!-- Estilos globales del proyecto -->
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+
+    <style>
+        .auth-wrap {
+            min-height: 100dvh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            background: var(--bg)
+        }
+
+        .auth-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .75rem;
+            height: 72px;
+            border-bottom: 1px solid var(--border);
+            padding: 0 1rem
+        }
+
+        #site-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: var(--card);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            font-weight: 700
+        }
+
+        .auth-main {
+            display: grid;
+            place-items: center;
+            padding: 1.25rem
+        }
+
+        .card.auth {
+            width: min(960px, 96vw);
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0
+        }
+
+        @media (min-width:960px) {
+            .card.auth {
+                grid-template-columns: 1.1fr .9fr
+            }
+
+            .auth__aside {
+                border-right: 1px solid var(--border)
+            }
+        }
+
+        .auth__aside {
+            padding: 1.1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: .75rem
+        }
+
+        .auth__aside h1 {
+            margin: .25rem 0 0;
+            font-size: 1.35rem
+        }
+
+        .auth__form {
+            padding: 1.25rem
+        }
+
+        .tabs {
+            display: flex;
+            gap: .25rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap
+        }
+
+        .tab {
+            padding: .45rem .7rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--fg)
+        }
+
+        .tab[aria-selected="true"] {
+            background: rgba(79, 140, 255, .18)
+        }
+
+        .form-grid {
+            display: grid;
+            gap: .85rem
+        }
+
+        .field {
+            display: grid;
+            gap: .35rem
+        }
+
+        .field .input-icon {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: .15rem .35rem .15rem .5rem
+        }
+
+        .field .input-icon input {
+            flex: 1;
+            background: transparent;
+            border: 0;
+            outline: none;
+            color: var(--fg);
+            padding: .55rem .4rem
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .reqs {
+            font-size: .85rem;
+            color: var(--muted)
+        }
+
+        .error-msg {
+            color: var(--danger);
+            font-size: .85rem;
+            min-height: 1.2em
+        }
+
+        .actions {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        .link {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0
+        }
+
+        .btn[aria-busy="true"] {
+            position: relative;
+            opacity: .8;
+            pointer-events: none
+        }
+
+        .btn[aria-busy="true"]::after {
+            content: "";
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: spin .8s linear infinite
+        }
+
+        @keyframes spin {
+            to {
+                transform: translateY(-50%) rotate(360deg)
+            }
+        }
+
+        .auth-footer {
+            padding: .9rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--muted);
+            font-size: .9rem
+        }
+
+        .theme-toggle {
+            position: fixed;
+            right: 12px;
+            top: 12px
+        }
+    </style>
+</head>
+
+<body>
+    <!-- toasts -->
+    <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="auth-wrap">
+        <!-- Logo / header -->
+        <header class="auth-header">
+            <div id="site-logo" aria-label="Logo">Logo</div>
+        </header>
+
+        <!-- Tema -->
+        <button id="theme-toggle" class="btn-icon theme-toggle" aria-label="Cambiar tema">
+            <span class="material-symbols-rounded">dark_mode</span>
+        </button>
+
+        <!-- Card Auth -->
+        <main class="auth-main">
+            <section class="card auth" aria-labelledby="auth-title">
+                <aside class="auth__aside">
+                    <h1 id="auth-title">Presupuesto base cero FS</h1>
+                    <p class="muted">Accede con tu correo para continuar. Si no tienes cuenta, regístrate en minutos.
+                    </p>
+                    <ul class="muted" style="margin:.25rem 0 0 1rem; line-height:1.6">
+                        <li>Sesión segura con Supabase</li>
+                        <li>Primer inicio te guía a <strong>Configuraciones</strong></li>
+                        <li>Tema oscuro/claro con persistencia</li>
+                    </ul>
+                </aside>
+
+                <div class="auth__form">
+                    <!-- Tabs -->
+                    <div class="tabs" role="tablist" aria-label="Acciones de autenticación">
+                        <button class="tab" id="tab-login" role="tab" aria-selected="true"
+                            aria-controls="panel-login">Iniciar sesión</button>
+                        <button class="tab" id="tab-register" role="tab" aria-selected="false"
+                            aria-controls="panel-register">Crear cuenta</button>
+                        <button class="tab" id="tab-recover" role="tab" aria-selected="false"
+                            aria-controls="panel-recover">Recuperar contraseña</button>
+                    </div>
+
+                    <!-- Panel: Login -->
+                    <section id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+                        <form id="form-login" class="form-grid" novalidate>
+                            <div class="field">
+                                <label for="login-email">Correo</label>
+                                <div class="input-icon">
+                                    <span class="material-symbols-rounded" aria-hidden="true">mail</span>
+                                    <input id="login-email" name="email" type="email" required autocomplete="email"
+                                        inputmode="email" placeholder="tucorreo@dominio.com">
+                                </div>
+                                <div class="error-msg" data-for="email" aria-live="polite"></div>
+                            </div>
+
+                            <div class="field">
+                                <label for="login-password">Contraseña</label>
+                                <div class="input-icon">
+                                    <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+                                    <input id="login-password" name="password" type="password" required
+                                        autocomplete="current-password" minlength="8" placeholder="••••••••">
+                                    <button type="button" class="btn-icon" aria-label="Mostrar/ocultar contraseña"
+                                        data-toggle="reveal" data-target="#login-password">
+                                        <span class="material-symbols-rounded">visibility</span>
+                                    </button>
+                                </div>
+                                <div class="error-msg" data-for="password" aria-live="polite"></div>
+                            </div>
+
+                            <div class="actions">
+                                <button type="submit" class="btn" id="btn-login">Entrar</button>
+                                <button type="button" class="btn btn--ghost" id="go-register">Crear cuenta</button>
+                                <button type="button" class="link" id="go-recover">¿Olvidaste tu contraseña?</button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <!-- Panel: Registro -->
+                    <section id="panel-register" role="tabpanel" aria-labelledby="tab-register" hidden>
+                        <form id="form-register" class="form-grid" novalidate>
+                            <div class="field">
+                                <label for="reg-email">Correo</label>
+                                <div class="input-icon">
+                                    <span class="material-symbols-rounded" aria-hidden="true">mail</span>
+                                    <input id="reg-email" name="email" type="email" required autocomplete="email"
+                                        inputmode="email" placeholder="tucorreo@dominio.com">
+                                </div>
+                                <div class="error-msg" data-for="email" aria-live="polite"></div>
+                            </div>
+
+                            <div class="field">
+                                <label for="reg-password">Contraseña</label>
+                                <div class="input-icon">
+                                    <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+                                    <input id="reg-password" name="password" type="password" required
+                                        autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres">
+                                    <button type="button" class="btn-icon" aria-label="Mostrar/ocultar contraseña"
+                                        data-toggle="reveal" data-target="#reg-password">
+                                        <span class="material-symbols-rounded">visibility</span>
+                                    </button>
+                                </div>
+                                <div class="reqs">Mínimo 8 caracteres. Sugerimos incluir mayúscula, minúscula y número.
+                                </div>
+                                <div class="error-msg" data-for="password" aria-live="polite"></div>
+                            </div>
+
+                            <div class="field">
+                                <label for="reg-confirm">Confirmar contraseña</label>
+                                <div class="input-icon">
+                                    <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+                                    <input id="reg-confirm" name="confirm" type="password" required
+                                        autocomplete="new-password" minlength="8" placeholder="Repite la contraseña">
+                                    <button type="button" class="btn-icon" aria-label="Mostrar/ocultar contraseña"
+                                        data-toggle="reveal" data-target="#reg-confirm">
+                                        <span class="material-symbols-rounded">visibility</span>
+                                    </button>
+                                </div>
+                                <div class="error-msg" data-for="confirm" aria-live="polite"></div>
+                            </div>
+
+                            <div class="field" style="display:flex; gap:.5rem; align-items:flex-start">
+                                <input id="reg-terms" type="checkbox" required style="margin-top:.2rem">
+                                <label for="reg-terms" class="muted">Acepto los términos y condiciones
+                                    (placeholder).</label>
+                            </div>
+
+                            <div class="actions">
+                                <button type="submit" class="btn" id="btn-register">Registrarme</button>
+                                <button type="button" class="btn btn--ghost" id="go-login-1">Ya tengo cuenta</button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <!-- Panel: Recuperar contraseña -->
+                    <section id="panel-recover" role="tabpanel" aria-labelledby="tab-recover" hidden>
+                        <form id="form-recover" class="form-grid" novalidate>
+                            <div class="field">
+                                <label for="rec-email">Correo</label>
+                                <div class="input-icon">
+                                    <span class="material-symbols-rounded" aria-hidden="true">mail</span>
+                                    <input id="rec-email" name="email" type="email" required autocomplete="email"
+                                        inputmode="email" placeholder="tucorreo@dominio.com">
+                                </div>
+                                <div class="error-msg" data-for="email" aria-live="polite"></div>
+                            </div>
+                            <div class="actions">
+                                <button type="submit" class="btn" id="btn-recover">Enviar enlace de
+                                    recuperación</button>
+                                <button type="button" class="btn btn--ghost" id="go-login-2">Volver a iniciar
+                                    sesión</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+            </section>
+        </main>
+
+        <footer class="auth-footer">
+            <span>© <span id="year"></span> Presupuesto base cero FS</span>
+        </footer>
+    </div>
+
+    <!-- Módulos del proyecto -->
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/config.js"></script>
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/utils.js"></script>
+    <script type="module" src="js/login.js"></script>
+</body>
+
+</html>

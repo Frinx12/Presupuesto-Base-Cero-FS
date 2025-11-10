@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inicio — Presupuesto base cero FS</title>
+
+  <!-- Fuentes e íconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Rounded"
+    rel="stylesheet">
+
+  <!-- Estilos globales -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/config-overrides.css">
+  <link rel="stylesheet" href="css/config-sidebar.css">
+  <!-- Topbar unificado -->
+  <link rel="stylesheet" href="css/topbar.css">
+
+  <style>
+    /* Ajustes mínimos locales del dashboard */
+    .subheader {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: .5rem 0 1rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .25rem .6rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+    }
+
+    /* Listas compactas */
+    .list-compact {
+      display: grid;
+      gap: .5rem;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: .75rem;
+      align-items: center;
+      padding: .6rem .75rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--surface) 96%, white 2%);
+    }
+
+    .item .name {
+      font-weight: 600;
+    }
+
+    .item .when {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .state {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      padding: .2rem .5rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: .8rem;
+    }
+
+    .state.pending {
+      background: color-mix(in srgb, var(--air-superiority-blue) 12%, transparent);
+    }
+
+    .state.paid {
+      background: rgba(34, 197, 94, .12);
+      color: var(--success);
+      border-color: rgba(34, 197, 94, .25);
+    }
+
+    .state.overdue {
+      background: rgba(239, 68, 68, .12);
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, .25);
+    }
+
+    .money {
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .progress {
+      height: 10px;
+      background: color-mix(in srgb, var(--surface-2) 70%, white 10%);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress>i {
+      display: block;
+      height: 100%;
+      background: var(--accent);
+    }
+
+    /* Skeleton */
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--surface-2) 60%, white 10%);
+      border-radius: 10px;
+    }
+
+    .skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--fg) 10%, transparent), transparent);
+      animation: shimmer 1.2s infinite;
+    }
+
+    @keyframes shimmer {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(100%);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Toasts -->
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Topbar -->
+  <header class="header" id="topbar" role="banner"></header>
+
+  <!-- ===== Layout con barra lateral ===== -->
+  <main class="config" id="content">
+    <!-- Barra lateral -->
+    <aside class="config__aside" aria-label="Secciones del dashboard">
+      <div class="config__aside-header">Inicio</div>
+      <ul class="sidelist" role="tablist" aria-orientation="vertical">
+        <li>
+          <a class="sidelink" role="tab" href="#periodo" data-section="periodo" aria-controls="panel-periodo">
+            <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
+            <span>Período</span>
+            <span class="badge" id="chip-periodo">—</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#pagos" data-section="pagos" aria-controls="panel-pagos">
+            <span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>
+            <span>Pagos del mes</span>
+            <span class="badge"><span id="count-pagos">0</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#ahorros" data-section="ahorros" aria-controls="panel-ahorros">
+            <span class="material-symbols-rounded" aria-hidden="true">savings</span>
+            <span>Ahorros</span>
+            <span class="badge" id="badge-ahorros">—</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#provisiones" data-section="provisiones"
+            aria-controls="panel-provisiones">
+            <span class="material-symbols-rounded" aria-hidden="true">account_balance_wallet</span>
+            <span>Provisiones</span>
+            <span class="badge" id="badge-provisiones">—</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Paneles -->
+    <section class="config__main">
+      <!-- Período -->
+      <section id="panel-periodo" class="panel" role="tabpanel" data-section="periodo">
+        <header class="panel__header">
+          <div>
+            <h2 style="margin:0">Período del presupuesto</h2>
+            <small class="muted">Selecciona el Mes/Año que usarán todas las páginas.</small>
+          </div>
+          <div class="header__spacer"></div>
+          <span id="period-chip" class="pill">
+            <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+            <span id="period-label">—</span>
+          </span>
+        </header>
+        <div class="panel__body">
+          <form class="period-form" onsubmit="return false;" aria-label="Selector de período">
+            <div class="row" style="display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+              <div class="input">
+                <label for="sel-mes" class="required">Mes</label>
+                <select id="sel-mes" required></select>
+              </div>
+              <div class="input">
+                <label for="sel-anio" class="required">Año</label>
+                <select id="sel-anio" required></select>
+              </div>
+            </div>
+            <div class="actions-row" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem">
+              <button id="btn-aplicar" class="btn" type="button" title="Aplicar período">
+                <span class="material-symbols-rounded" aria-hidden="true">done</span>Aplicar
+              </button>
+            </div>
+            <p class="muted" style="margin:.5rem 0 0">
+              Al aplicar se guarda en el navegador y se notifica a todo el sitio
+              (<code>bpz:month-changed</code>).
+            </p>
+          </form>
+        </div>
+      </section>
+
+      <!-- Pagos -->
+      <section id="panel-pagos" class="panel" role="tabpanel" data-section="pagos" hidden>
+        <header class="panel__header">
+          <div>
+            <h2 style="margin:0">Recordatorios de Pagos Mensuales</h2>
+            <small class="muted">Del período activo</small>
+          </div>
+          <div class="header__spacer"></div>
+          <button id="refresh-pagos" class="btn btn--ghost" title="Refrescar">
+            <span class="material-symbols-rounded" aria-hidden="true">refresh</span>
+          </button>
+        </header>
+        <div class="panel__body">
+          <div id="pagos-list" class="list-compact">
+            <div class="skeleton" style="height:48px"></div>
+            <div class="skeleton" style="height:48px"></div>
+            <div class="skeleton" style="height:48px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ahorros -->
+      <section id="panel-ahorros" class="panel" role="tabpanel" data-section="ahorros" hidden>
+        <header class="panel__header">
+          <div>
+            <h2 style="margin:0">Resumen de Ahorros</h2>
+            <small class="muted">Saldo total y progreso de metas</small>
+          </div>
+          <div class="header__spacer"></div>
+          <span id="ahorros-total" class="pill"><span class="material-symbols-rounded"
+              aria-hidden="true">savings</span>—</span>
+        </header>
+        <div class="panel__body">
+          <div id="metas-list" class="list-compact">
+            <div class="skeleton" style="height:64px"></div>
+            <div class="skeleton" style="height:64px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Provisiones -->
+      <section id="panel-provisiones" class="panel" role="tabpanel" data-section="provisiones" hidden>
+        <header class="panel__header">
+          <div>
+            <h2 style="margin:0">Resumen de Provisiones</h2>
+            <small class="muted">Saldos actuales por provisión</small>
+          </div>
+          <div class="header__spacer"></div>
+          <span id="prov-total" class="pill"><span class="material-symbols-rounded"
+              aria-hidden="true">account_balance_wallet</span>—</span>
+        </header>
+        <div class="panel__body">
+          <div id="prov-list" class="list-compact">
+            <div class="skeleton" style="height:48px"></div>
+            <div class="skeleton" style="height:48px"></div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Modales -->
+  <div id="modal-root"></div>
+
+  <!-- Scripts base -->
+  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/supabase.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/utils.js"></script>
+  <script type="module" src="js/period.js"></script>
+
+  <!-- Lógica de la página -->
+  <script type="module" src="js/inicio.js"></script>
+  <!-- Navegación lateral genérica -->
+  <script type="module" src="js/section-nav.js"></script>
+
+  <!-- Montaje del topbar unificado -->
+  <script type="module">
+    import { mountTopbar } from './js/topbar.js';
+    mountTopbar({ active: 'inicio.html', title: document.title });
+  </script>
+</body>
+
+</html>

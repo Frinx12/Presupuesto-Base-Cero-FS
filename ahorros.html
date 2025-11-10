@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ahorros y provisiones — Presupuesto base cero FS</title>
+
+  <!-- Fuentes / Íconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Rounded"
+    rel="stylesheet">
+
+  <!-- CSS global -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/config-overrides.css" />
+  <!-- Reutilizamos layout lateral del sitio -->
+  <link rel="stylesheet" href="css/config-sidebar.css" />
+  <link rel="stylesheet" href="css/topbar.css">
+
+
+  <style>
+    /* Ajustes locales mínimos coherentes con el resto */
+    .subheader {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: .35rem 0 1rem
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .25rem .6rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted)
+    }
+
+    .sticky-summary {
+      position: sticky;
+      top: calc(64px + .75rem);
+      z-index: 5
+    }
+
+    .bpz-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+    }
+
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--surface-2) 60%, white 10%);
+      border-radius: 10px;
+      min-height: 60px
+    }
+
+    .skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--fg) 10%, transparent), transparent);
+      animation: shimmer 1.2s infinite
+    }
+
+    @keyframes shimmer {
+      from {
+        transform: translateX(-100%)
+      }
+
+      to {
+        transform: translateX(100%)
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Toasts -->
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+  <header class="header" id="topbar"></header>
+  <div class="header__spacer"></div>
+
+  <!-- ===== Layout con barra lateral ===== -->
+  <main class="config" id="content">
+    <!-- Sidebar -->
+    <aside class="config__aside" aria-label="Secciones de Ahorros y provisiones">
+      <div class="config__aside-header">Ahorros y provisiones</div>
+      <ul class="sidelist" role="tablist" aria-orientation="vertical">
+        <li>
+          <a class="sidelink" role="tab" href="#resumen" data-section="resumen" aria-controls="panel-resumen">
+            <span class="material-symbols-rounded" aria-hidden="true">summarize</span>
+            <span>Resumen mensual</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#gestion" data-section="gestion" aria-controls="panel-gestion">
+            <span class="material-symbols-rounded" aria-hidden="true">savings</span>
+            <span>Mis ahorros y provisiones</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Paneles -->
+    <section class="config__main">
+      <h1 style="margin:0 0 .25rem 0">Ahorros y provisiones</h1>
+      <div class="subheader">
+        <span class="muted">Usando período:</span>
+        <span id="period-chip" class="pill">
+          <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+          <span id="period-label">—</span>
+        </span>
+        <span class="muted">Los cambios rigen desde el período actual.</span>
+      </div>
+
+      <!-- Panel: Resumen mensual (sticky) -->
+      <section id="panel-resumen" class="panel sticky-summary" role="tabpanel" data-section="resumen">
+        <header class="panel__header">
+          <h2 style="margin:0">Resumen mensual (movimientos reales del mes)</h2>
+        </header>
+        <div class="panel__body">
+          <div class="row" style="display:flex;justify-content:space-between;gap:1rem;">
+            <div><span class="muted">Total del mes en Ahorros</span></div>
+            <div><strong id="sum-mes-ahorros">—</strong></div>
+          </div>
+          <div class="row" style="display:flex;justify-content:space-between;gap:1rem;">
+            <div><span class="muted">Total del mes en Provisiones</span></div>
+            <div><strong id="sum-mes-provisiones">—</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel: Mis ahorros y provisiones -->
+      <section id="panel-gestion" class="panel" role="tabpanel" data-section="gestion" hidden>
+        <header class="panel__header">
+          <h2 style="margin:0">Mis ahorros y provisiones</h2>
+          <div class="header__spacer"></div>
+          <div class="header-actions" style="display:flex;gap:.5rem">
+            <button id="btn-new-ahorro" class="btn">
+              <span class="material-symbols-rounded" aria-hidden="true">add</span> Nuevo ahorro
+            </button>
+            <button id="btn-new-provision" class="btn">
+              <span class="material-symbols-rounded" aria-hidden="true">add</span> Nueva provisión
+            </button>
+          </div>
+        </header>
+        <div class="panel__body">
+          <section class="bpz-grid" id="grid-ahp">
+            <!-- Tu JS insertará las tarjetas; dejamos un esqueleto inicial -->
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+          </section>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Modales -->
+  <div id="modal-root"></div>
+
+  <!-- JS del proyecto -->
+  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/supabase.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/utils.js"></script>
+  <script type="module" src="js/period.js"></script>
+  <script type="module" src="js/ahorros.js"></script>
+  <!-- Navegación lateral genérica -->
+  <script type="module" src="js/section-nav.js"></script>
+
+  <script>
+    // Activo, tema, logout (mismo patrón del sitio)
+    document.querySelectorAll('.mainnav__link').forEach(a => {
+      if (a.getAttribute('href') === 'ahorros.html') a.classList.add('is-active');
+    });
+    const savedTheme = localStorage.getItem('bpz_theme');
+    if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    document.getElementById('theme-toggle')?.addEventListener('click', () => {
+      const root = document.documentElement;
+      const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+      root.dataset.theme = next; localStorage.setItem('bpz_theme', next);
+    });
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      try { const { signOut } = await import('./js/auth.js'); await signOut(); }
+      catch { location.href = 'login.html'; }
+    });
+  </script>
+  <script type="module">
+    import { mountTopbar } from './js/topbar.js';
+    mountTopbar({ active: 'NOMBRE_DE_ARCHIVO.html', title: document.title });
+  </script>
+
+</body>
+
+</html>

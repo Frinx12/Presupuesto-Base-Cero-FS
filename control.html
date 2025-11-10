@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Control mensual — Presupuesto base cero FS</title>
+
+  <!-- Fuentes / Íconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Rounded"
+    rel="stylesheet">
+
+  <!-- CSS global del proyecto -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/config-overrides.css" />
+  <!-- Reutilizamos el layout lateral del sitio -->
+  <link rel="stylesheet" href="css/config-sidebar.css" />
+  <link rel="stylesheet" href="css/topbar.css">
+
+  <style>
+    /* ===== Utilidades generales de esta página ===== */
+    .subheader {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: .35rem 0 1rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .25rem .6rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      gap: var(--space-3);
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .cc-badges .badge {
+      margin-right: .25rem;
+      margin-bottom: .25rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .2rem .5rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--surface-2) 60%, white 10%);
+      border-radius: 10px;
+      min-height: 60px;
+    }
+
+    .skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+          transparent,
+          color-mix(in srgb, var(--fg) 10%, transparent),
+          transparent);
+      animation: shimmer 1.2s infinite;
+    }
+
+    @keyframes shimmer {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    #filter-text {
+      padding: .5rem .7rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    .period {
+      display: flex;
+      gap: .5rem;
+      align-items: center;
+    }
+
+    /* Encabezados de tabla ordenables (sin íconos, solo cursor) */
+    .table--budget th[data-sort-key] {
+      cursor: pointer;
+    }
+
+    /* ===================================================================
+     TARJETA DE CRÉDITO – ESTILOS ESPECÍFICOS
+     =================================================================== */
+
+    /* Cabecera del panel */
+    #panel-tarjeta .panel__header {
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+    }
+
+    #panel-tarjeta .panel__body {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Badge del período de TC */
+    #panel-tarjeta .cc-badges .badge {
+      background: color-mix(in srgb, var(--surface-2) 92%, black 4%);
+      border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+      color: var(--accent-foreground);
+    }
+
+    #panel-tarjeta #cc-period {
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+
+    /* ---------- Resumen principal (Total consumos / pagado / saldo) ---------- */
+
+    /* Tarjeta grande de resumen */
+    #panel-tarjeta .card:first-of-type {
+      border-radius: 1.3rem;
+      background:
+        radial-gradient(circle at 0% 0%,
+          color-mix(in srgb, var(--accent) 16%, transparent) 0,
+          transparent 55%),
+        radial-gradient(circle at 100% 100%,
+          color-mix(in srgb, var(--success) 14%, transparent) 0,
+          transparent 55%),
+        color-mix(in srgb, var(--surface-2) 95%, black 5%);
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+    }
+
+    #panel-tarjeta .card:first-of-type .card__header {
+      background: transparent;
+      border-bottom: none;
+      padding-bottom: .15rem;
+    }
+
+    #panel-tarjeta .card:first-of-type .card__header h3 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    /* Sub tarjetas de métricas dentro del resumen */
+    #panel-tarjeta .card:first-of-type .grid {
+      margin-top: .45rem;
+    }
+
+    #panel-tarjeta .card:first-of-type .grid .card {
+      background: color-mix(in srgb, var(--surface) 90%, black 3%);
+      border-radius: 1rem;
+      border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    }
+
+    #panel-tarjeta .card:first-of-type .grid .card__body {
+      padding: .9rem 1rem;
+    }
+
+    #panel-tarjeta .card:first-of-type .grid .muted {
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    #panel-tarjeta .card:first-of-type .grid h3 {
+      margin: .25rem 0 0;
+      font-size: 1.4rem;
+    }
+
+    /* Botón "Registrar pago" alineado a la derecha en desktop */
+    #panel-tarjeta #cc-add-payment {
+      margin-top: .6rem;
+    }
+
+    @media (min-width: 768px) {
+      #panel-tarjeta #cc-add-payment {
+        float: right;
+      }
+    }
+
+    /* ---------- Tarjetas de Consumos / Pagos ---------- */
+
+    #panel-tarjeta section.card+section.card {
+      border-radius: 1.1rem;
+      border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+      background: color-mix(in srgb, var(--surface-2) 96%, black 4%);
+    }
+
+    #panel-tarjeta section.card .card__header {
+      background: transparent;
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    }
+
+    #panel-tarjeta section.card .card__header h3 {
+      font-size: .98rem;
+      letter-spacing: .03em;
+    }
+
+    /* Tablas internas de tarjeta: algo más compactas */
+    #panel-tarjeta .table--budget th,
+    #panel-tarjeta .table--budget td {
+      font-size: .86rem;
+      padding: .45rem .6rem;
+    }
+
+    #panel-tarjeta .table--budget .cell--right {
+      text-align: right;
+    }
+
+    #panel-tarjeta .table-wrap--budget {
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    /* Hover un poco más marcado dentro de este panel */
+    #panel-tarjeta .table--budget tbody tr:hover td {
+      background: color-mix(in srgb, var(--surface) 85%, black 6%);
+    }
+
+    /* Columna "Estado" de la tabla de consumos */
+    #cc-table tbody td:last-child {
+      text-align: left;
+      font-size: .8rem;
+      text-transform: capitalize;
+      color: var(--muted);
+    }
+
+    /* Pagos registrados: monto bien alineado a la derecha */
+    #cc-payments-table .cell--right {
+      text-align: right;
+    }
+
+    /* =========================================================
+   VISTA RESPONSIVE (MÓVIL) PARA MOVIMIENTOS DEL PERÍODO
+   Tabla en desktop, tarjetas en móvil
+   ========================================================= */
+
+    /* Por defecto, solo tabla, las tarjetas ocultas */
+    #mov-cards {
+      display: none;
+    }
+
+    /* Tarjetas: estilo */
+    .mov-card {
+      border-radius: 12px;
+      border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+      background: color-mix(in srgb, var(--surface-2) 96%, black 4%);
+      padding: .6rem .75rem;
+      display: grid;
+      gap: .25rem;
+    }
+
+    .mov-card__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .mov-card__date {
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    .mov-card__amount {
+      font-weight: 600;
+      font-size: .95rem;
+      text-align: right;
+    }
+
+    .mov-card__desc {
+      font-size: .9rem;
+      margin-top: .05rem;
+      word-break: break-word;
+    }
+
+    .mov-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .25rem;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    .mov-card__meta span.dot {
+      opacity: .7;
+    }
+
+    .mov-card__actions {
+      margin-top: .15rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: .25rem;
+    }
+
+    /* Botones de acción dentro de la tarjeta (reaprovechamos .btn-icon) */
+    .mov-card__actions .btn-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      padding: 0;
+    }
+
+    /* --------- PUNTO DE CORTE: MÓVIL --------- */
+    @media (max-width: 768px) {
+
+      /* Quitamos la tabla en móvil */
+      #panel-movimientos .table-wrap.table-wrap--budget {
+        display: none;
+      }
+
+      /* Mostramos tarjetas en móvil */
+      #mov-cards {
+        display: grid;
+        gap: .6rem;
+      }
+    }
+
+    /* En desktop nos aseguramos de que las tarjetas no aparezcan */
+    @media (min-width: 769px) {
+      #mov-cards {
+        display: none;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+  <!-- Toasts -->
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+  <header class="header" id="topbar"></header>
+  <div class="header__spacer"></div>
+
+  <!-- ===== Layout con barra lateral ===== -->
+  <main class="config" id="content">
+    <!-- Barra lateral -->
+    <aside class="config__aside" aria-label="Secciones de Control mensual">
+      <div class="config__aside-header">Control mensual</div>
+      <ul class="sidelist" role="tablist" aria-orientation="vertical">
+        <li>
+          <a class="sidelink" role="tab" href="#alta" data-section="alta" aria-controls="panel-alta">
+            <span class="material-symbols-rounded" aria-hidden="true">add_card</span>
+            <span>Agregar transacción</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#movimientos" data-section="movimientos"
+            aria-controls="panel-movimientos">
+            <span class="material-symbols-rounded" aria-hidden="true">dataset</span>
+            <span>Movimientos del período</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#tarjeta" data-section="tarjeta" aria-controls="panel-tarjeta">
+            <span class="material-symbols-rounded" aria-hidden="true">credit_card</span>
+            <span>Tarjeta de crédito</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Paneles -->
+    <section class="config__main">
+      <h1 id="page-title" style="margin:0 0 .25rem 0">Control mensual — </h1>
+      <div class="subheader">
+        <span class="muted">Período:</span>
+        <span id="period-chip" class="pill"><span class="material-symbols-rounded">schedule</span><span
+            id="period-label">—</span></span>
+        <button class="btn btn-small" id="btn-cc-open">
+          <span class="material-symbols-rounded">credit_card</span> Revisión mensual de tarjeta de crédito
+        </button>
+      </div>
+
+      <!-- Panel: Alta de movimientos -->
+      <section id="panel-alta" class="panel" role="tabpanel" data-section="alta">
+        <header class="panel__header">
+          <h2 style="margin:0">Agregar transacción</h2>
+        </header>
+        <div class="panel__body">
+          <form id="mov-form" class="grid" novalidate>
+            <div class="input">
+              <label for="mov-fecha" class="required">Fecha</label>
+              <input id="mov-fecha" type="date" required />
+              <small class="help">Debe pertenecer al período activo.</small>
+              <div class="input__error" data-for="fecha"></div>
+            </div>
+
+            <div class="input">
+              <label for="mov-desc" class="required">Descripción</label>
+              <input id="mov-desc" type="text" required placeholder="Ej. Compra super / Salario neto Ana" />
+              <div class="input__error" data-for="descripcion"></div>
+            </div>
+
+            <div class="input">
+              <label for="mov-rubro" class="required">Rubro</label>
+              <select id="mov-rubro" required></select>
+              <small class="help"></small>
+              <div class="input__error" data-for="rubro"></div>
+            </div>
+
+            <div class="input">
+              <label for="mov-resp" class="required">Responsable</label>
+              <select id="mov-resp" required></select>
+              <div class="input__error" data-for="responsable"></div>
+            </div>
+
+            <div class="input">
+              <label for="mov-medio" class="required">Medio de pago</label>
+              <select id="mov-medio" required>
+                <option value="SINPE">SINPE</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta de débito">Tarjeta de débito</option>
+                <option value="Tarjeta de crédito">Tarjeta de crédito</option>
+              </select>
+              <div class="input__error" data-for="medio"></div>
+            </div>
+
+            <div class="input">
+              <label for="mov-monto" class="required">Monto</label>
+              <input id="mov-monto" type="number" min="0" step="0.01" required />
+              <div class="input__error" data-for="monto"></div>
+            </div>
+
+            <div class="actions-row" style="align-self:end">
+              <button type="reset" class="btn btn--ghost">
+                <span class="material-symbols-rounded">backspace</span> Limpiar
+              </button>
+              <button type="submit" class="btn" id="mov-save">
+                <span class="material-symbols-rounded">save</span> Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Panel: Movimientos -->
+      <!-- Panel: Movimientos -->
+      <section id="panel-movimientos" class="panel" role="tabpanel" data-section="movimientos" hidden>
+        <header class="panel__header toolbar">
+          <h2 style="margin:0">Movimientos del período</h2>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+            <input id="filter-text" placeholder="Buscar…" />
+            <select id="filter-medio">
+              <option value="">Medio: todos</option>
+              <option>SINPE</option>
+              <option>Transferencia</option>
+              <option>Efectivo</option>
+              <option>Tarjeta de débito</option>
+              <option>Tarjeta de crédito</option>
+            </select>
+            <button id="refresh" class="btn btn--ghost" title="Refrescar">
+              <span class="material-symbols-rounded">refresh</span>
+            </button>
+          </div>
+        </header>
+        <div class="panel__body">
+          <div class="table-wrap table-wrap--budget">
+            <table class="table table--budget" id="mov-table" aria-describedby="page-title">
+              <colgroup>
+                <col style="width:110px"><!-- Fecha -->
+                <col><!-- Descripción -->
+                <col style="width:22%"><!-- Rubro -->
+                <col style="width:14%"><!-- Responsable -->
+                <col style="width:14%"><!-- Medio -->
+                <col class="col--monto" style="width:12%"><!-- Monto -->
+                <col class="col--acciones" style="width:112px"><!-- Acciones -->
+              </colgroup>
+              <thead>
+                <tr>
+                  <th data-sort-key="fecha">Fecha</th>
+                  <th data-sort-key="descripcion">Descripción</th>
+                  <th data-sort-key="rubro">Rubro</th>
+                  <th data-sort-key="responsable">Responsable</th>
+                  <th data-sort-key="medio">Medio</th>
+                  <th class="cell--right" data-sort-key="monto">Monto</th>
+                  <th class="cell--actions">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="mov-tbody">
+                <tr>
+                  <td colspan="7" class="muted">Cargando…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- NUEVO: vista tarjetas para móvil -->
+          <div id="mov-cards" class="mov-cards"></div>
+        </div>
+      </section>
+
+
+      <!-- Panel: Tarjeta de crédito -->
+      <section id="panel-tarjeta" class="panel" role="tabpanel" data-section="tarjeta" hidden>
+        <header class="panel__header">
+          <h2 style="margin:0">Revisión mensual de tarjeta de crédito</h2>
+          <div class="header__spacer"></div>
+          <div class="cc-badges">
+            <span class="badge"><span class="material-symbols-rounded">calendar_month</span> <b
+                id="cc-period">—</b></span>
+          </div>
+        </header>
+        <div class="panel__body">
+          <!-- Resumen TC -->
+          <section class="card">
+            <header class="card__header">
+              <h3 style="margin:0">Resumen tarjeta de crédito</h3>
+            </header>
+            <div class="card__body">
+              <div class="grid">
+                <div class="card">
+                  <div class="card__body">
+                    <div class="muted">Total consumos (TC)</div>
+                    <h3 id="cc-total-consumos">—</h3>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card__body">
+                    <div class="muted">Total pagado</div>
+                    <h3 id="cc-total-pagado">—</h3>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card__body">
+                    <div class="muted">Saldo restante</div>
+                    <h3 id="cc-total-saldo">—</h3>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:.75rem">
+                <button id="cc-add-payment" class="btn">
+                  <span class="material-symbols-rounded">payments</span> Registrar pago
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Consumos -->
+          <section class="card" style="margin-top:1rem">
+            <header class="card__header">
+              <h3 style="margin:0">Consumos del período</h3>
+            </header>
+            <div class="card__body">
+              <div class="table-wrap table-wrap--budget">
+                <table class="table table--budget" id="cc-table" aria-describedby="cc-period">
+                  <colgroup>
+                    <col style="width:110px"><!-- Fecha -->
+                    <col><!-- Descripción -->
+                    <col class="col--monto" style="width:12%"><!-- Monto -->
+                    <col style="width:12%"><!-- Estado -->
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Descripción</th>
+                      <th class="cell--right">Monto</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cc-tbody">
+                    <tr>
+                      <td colspan="4" class="muted">Cargando…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Pagos -->
+          <section class="card" style="margin-top:1rem">
+            <header class="card__header">
+              <h3 style="margin:0">Pagos registrados</h3>
+            </header>
+            <div class="card__body">
+              <div class="table-wrap table-wrap--budget">
+                <table class="table table--budget" id="cc-payments-table">
+                  <colgroup>
+                    <col style="width:110px"><!-- Fecha -->
+                    <col><!-- Nota -->
+                    <col class="col--monto" style="width:12%"><!-- Monto -->
+                    <col class="col--acciones" style="width:112px"><!-- Acciones -->
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Nota</th>
+                      <th class="cell--right">Monto</th>
+                      <th class="cell--actions">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cc-payments-tbody">
+                    <tr>
+                      <td colspan="4" class="muted">Cargando…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Modales -->
+  <div id="modal-root"></div>
+
+  <!-- JS del proyecto -->
+  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/supabase.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/utils.js"></script>
+  <script type="module" src="js/period.js"></script>
+  <script type="module" src="js/control.js"></script>
+  <!-- Navegación lateral genérica -->
+  <script type="module" src="js/section-nav.js"></script>
+
+  <script>
+    // Navegación activa + tema + logout
+    document.querySelectorAll('.mainnav__link').forEach(a => {
+      if (location.pathname.endsWith(a.getAttribute('href'))) a.classList.add('is-active');
+    });
+    const savedTheme = localStorage.getItem('bpz_theme');
+    if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    document.getElementById('theme-toggle')?.addEventListener('click', () => {
+      const root = document.documentElement;
+      const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+      root.dataset.theme = next; localStorage.setItem('bpz_theme', next);
+    });
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      try { const { signOut } = await import('./js/auth.js'); await signOut(); }
+      catch { location.href = 'login.html'; }
+    });
+
+    // Atajo para abrir el panel de tarjeta
+    document.getElementById('btn-cc-open')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const link = document.querySelector('.sidelink[data-section="tarjeta"]');
+      link?.dispatchEvent(new Event('click', { bubbles: true }));
+    });
+  </script>
+
+  <script type="module">
+    import { mountTopbar } from './js/topbar.js';
+    mountTopbar({ active: 'control.html', title: document.title });
+  </script>
+</body>
+
+</html>

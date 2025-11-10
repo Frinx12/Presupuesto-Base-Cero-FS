@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Análisis de salario — Presupuesto base cero FS</title>
+
+  <!-- Fuentes e íconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Rounded"
+    rel="stylesheet">
+
+  <!-- Estilos globales -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/config-overrides.css">
+  <!-- Reutilizamos el layout lateral del sitio -->
+  <link rel="stylesheet" href="css/config-sidebar.css">
+  <!-- Topbar unificado -->
+  <link rel="stylesheet" href="css/topbar.css">
+
+  <style>
+    /* Ajustes mínimos locales (compatibles con tu js actual) */
+    .subheader {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: .5rem 0 1rem
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .25rem .6rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent
+    }
+
+    .grid-users {
+      display: grid;
+      gap: var(--space-3);
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr))
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: var(--space-3);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--surface-2) 60%, white 10%);
+      border-radius: 10px;
+      min-height: 60px
+    }
+
+    .skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--fg) 10%, transparent), transparent);
+      animation: shimmer 1.2s infinite
+    }
+
+    @keyframes shimmer {
+      from {
+        transform: translateX(-100%)
+      }
+
+      to {
+        transform: translateX(100%)
+      }
+    }
+
+    .muted {
+      color: var(--muted)
+    }
+
+    .btn-small {
+      padding: .4rem .6rem
+    }
+
+    /* ===== Tarjetas de análisis de salario ===== */
+
+    .card--salary {
+      /* usamos la card base y la afinamos */
+      background: color-mix(in srgb, var(--surface-2) 95%, black 5%);
+      border-radius: 1.25rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, .25);
+    }
+
+    /* Header de cada usuario (nombre + modalidad + botón) */
+    .card--salary .card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      padding: .9rem 1.1rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    }
+
+    .card--salary .user-main {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .card--salary .user-name {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .card--salary .user-mode {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--border) 50%);
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+
+    /* Botón “Editar modalidad” más compacto */
+    .card--salary .user-actions .btn {
+      padding: .35rem .6rem;
+      font-size: .8rem;
+    }
+
+    /* Cuerpo: grid de pagos */
+    .card--salary .card__body {
+      padding: .9rem 1.1rem 1rem;
+    }
+
+    /* Cada pago como mini-card */
+    .pay-grid {
+      display: grid;
+      gap: .75rem;
+    }
+
+    /* en pantallas anchas, dos pagos por fila */
+    @media (min-width: 900px) {
+      .pay-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .pay-card {
+      position: relative;
+      padding: .65rem .8rem .7rem;
+      border-radius: .9rem;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 92%, black 4%);
+      overflow: hidden;
+    }
+
+    /* Borde lateral de color para distinguir Pago 1, 2, 3… */
+    .pay-card:nth-child(1) {
+      border-left: 3px solid var(--accent);
+    }
+
+    .pay-card:nth-child(2) {
+      border-left: 3px solid var(--air-superiority-blue);
+    }
+
+    .pay-card:nth-child(3) {
+      border-left: 3px solid color-mix(in srgb, var(--danger) 70%, var(--accent) 30%);
+    }
+
+    .pay-card:nth-child(4) {
+      border-left: 3px solid color-mix(in srgb, var(--success) 70%, var(--accent) 30%);
+    }
+
+    .pay-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .4rem;
+      margin-bottom: .25rem;
+      font-weight: 600;
+      font-size: .9rem;
+    }
+
+    .pay-title span {
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      opacity: .85;
+    }
+
+    .pay-body {
+      font-size: .85rem;
+      display: grid;
+      gap: .2rem;
+    }
+
+    .pay-row {
+      display: flex;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+
+    .pay-label {
+      color: var(--muted);
+    }
+
+    .pay-value {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Botón “Agregar deducción” alineado con el contenido */
+    .pay-actions {
+      margin-top: .35rem;
+    }
+
+    /* Línea final de total neto mensual bien separada */
+    .card--salary .user-total {
+      margin-top: .85rem;
+      padding-top: .65rem;
+      border-top: 1px dashed color-mix(in srgb, var(--border) 70%, transparent);
+      display: flex;
+      justify-content: space-between;
+      gap: .5rem;
+      font-weight: 600;
+      font-size: .9rem;
+    }
+
+    .card--salary .user-total-label {
+      white-space: nowrap;
+    }
+
+    .card--salary .user-total-value {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Evita que la T se “pegue” al borde inferior */
+    .card--salary {
+      padding-bottom: .15rem;
+      /* pequeño colchón extra */
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Toasts -->
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Topbar unificado (se monta por JS) -->
+  <header class="header" id="topbar"></header>
+
+  <!-- ===== Layout con barra lateral ===== -->
+  <main class="config" id="content">
+    <!-- Barra lateral -->
+    <aside class="config__aside" aria-label="Secciones de análisis de salario">
+      <div class="config__aside-header">Análisis de salario</div>
+      <ul class="sidelist" role="tablist" aria-orientation="vertical">
+        <li>
+          <a class="sidelink" role="tab" href="#resumen" data-section="resumen" aria-controls="panel-resumen">
+            <span class="material-symbols-rounded" aria-hidden="true">dashboard</span>
+            <span>Resumen</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#por-usuario" data-section="por-usuario"
+            aria-controls="panel-por-usuario">
+            <span class="material-symbols-rounded" aria-hidden="true">group</span>
+            <span>Por usuario</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Paneles -->
+    <section class="config__main">
+      <!-- Panel Resumen -->
+      <section id="panel-resumen" class="panel" role="tabpanel" data-section="resumen">
+        <header class="panel__header">
+          <div>
+            <h2 style="margin:0">Resumen</h2>
+            <small class="muted">Usando período:</small>
+          </div>
+          <div class="header__spacer"></div>
+          <span id="period-chip" class="pill">
+            <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+            <span id="period-label">—</span>
+          </span>
+        </header>
+        <div class="panel__body" id="summary-container">
+          <!-- El JS inyecta aquí el resumen: nombre, salario bruto y neto -->
+        </div>
+      </section>
+
+      <!-- Panel Por usuario (contenedor que tu js llena) -->
+      <section id="panel-por-usuario" class="panel" role="tabpanel" data-section="por-usuario" hidden>
+        <header class="panel__header">
+          <h2 style="margin:0">Detalle por usuario</h2>
+        </header>
+        <div class="panel__body">
+          <div id="users-grid" class="grid-users">
+            <!-- Skeleton inicial -->
+            <section class="card">
+              <header class="card__header"><strong>Cargando…</strong></header>
+              <div class="card__body">
+                <div class="skeleton"></div>
+              </div>
+            </section>
+            <section class="card">
+              <header class="card__header"><strong>Cargando…</strong></header>
+              <div class="card__body">
+                <div class="skeleton"></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Modales -->
+  <div id="modal-root"></div>
+
+  <!-- Scripts base -->
+  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/supabase.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/utils.js"></script>
+  <script type="module" src="js/period.js"></script>
+
+  <!-- Lógica de esta página -->
+  <script type="module" src="js/salario.js"></script>
+  <!-- Navegación lateral genérica -->
+  <script type="module" src="js/section-nav.js"></script>
+
+  <!-- Montar topbar unificado -->
+  <script type="module">
+    import { mountTopbar } from './js/topbar.js';
+    // Marca activa esta página
+    mountTopbar({ active: 'salario.html', title: document.title });
+  </script>
+</body>
+
+</html>

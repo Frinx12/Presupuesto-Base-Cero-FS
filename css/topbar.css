@@ -1,0 +1,324 @@
+/* ===============================
+   PBZ-FS — Topbar unificado
+   Archivo: css/topbar.css
+   Requiere: variables/base/components
+   =============================== */
+
+/* Evitar scroll horizontal global por si acaso */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Contenedor principal del topbar (header) */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .35rem .9rem;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+
+.header__spacer {
+  flex: 1 1 auto;
+}
+
+/* ============ Marca (logo + texto) ============ */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  flex-shrink: 0;
+}
+
+.logo-fs {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.logo-fs__letter {
+  position: absolute;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  font-size: 1.15rem;
+}
+
+.logo-fs__f {
+  left: 6px;
+  color: var(--surface);
+}
+
+.logo-fs__s {
+  right: 5px;
+  color: color-mix(in srgb, var(--surface) 85%, var(--accent) 15%);
+  opacity: .92;
+}
+
+.brand__name {
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: .85rem;
+}
+
+/* ============ Navegación principal ============ */
+
+.mainnav {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  flex: 0 1 auto;
+}
+
+.mainnav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: .28rem;
+  padding: .35rem .6rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  color: var(--fg);
+  background: transparent;
+  font-size: .9rem;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.mainnav__link .material-symbols-rounded {
+  font-size: 20px;
+}
+
+.mainnav__link:hover {
+  background: color-mix(in srgb, var(--air-superiority-blue) 12%, transparent);
+}
+
+.mainnav__link.is-active {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+/* Botón hamburguesa (por defecto oculto; solo se muestra en mobile) */
+.nav-toggle {
+  display: none;
+}
+
+/* ============ Zona derecha: período, tema, usuario ============ */
+
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  min-width: fit-content;
+}
+
+/* Pill de período */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .25rem .6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-2) 85%, transparent);
+  white-space: nowrap;
+}
+
+/* Botón icono genérico (tema, hamburguesa, etc.) */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: 1px solid var(--border);
+  color: var(--fg);
+}
+
+/* ============ User menu ============ */
+
+.avatar {
+  position: relative;
+}
+
+.avatar__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .42rem .6rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--fg);
+  font-weight: 600;
+  max-width: 220px;
+}
+
+.avatar__name {
+  max-width: 120px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.avatar__caret {
+  font-size: 18px;
+}
+
+.avatar__btn:focus-visible {
+  box-shadow: var(--ring);
+}
+
+/* Popover del user menu */
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 220px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg,
+      color-mix(in srgb, var(--surface) 96%, white 2%),
+      var(--surface));
+  box-shadow: var(--shadow-2);
+  padding: .35rem;
+  display: none;
+  z-index: 1000;
+}
+
+.menu.is-open {
+  display: grid;
+}
+
+.menu [role="menuitem"] {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem .65rem;
+  border-radius: 10px;
+  color: var(--fg);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu [role="menuitem"]:hover {
+  background: color-mix(in srgb, var(--air-superiority-blue) 12%, transparent);
+}
+
+.menu .sep {
+  height: 1px;
+  margin: .35rem .25rem;
+  background: color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+.menu .material-symbols-rounded {
+  font-size: 18px;
+  color: var(--muted);
+}
+
+/* ===================== BREAKPOINTS ===================== */
+
+/* TABLET: iconos solo en el nav para ganar espacio */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .mainnav__label {
+    display: none;
+  }
+
+  .mainnav__link {
+    padding-inline: .4rem;
+  }
+}
+
+/* MOBILE: hamburguesa + menú desplegable, avatar compacto */
+@media (max-width: 767px) {
+  .header {
+    padding-inline: .7rem;
+  }
+
+  /* Ocultamos el texto de PBZ-FS si se ve muy apretado */
+  .brand__name {
+    display: none;
+  }
+
+  /* Mostrar botón hamburguesa */
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  /* El nav se convierte en un panel flotante bajo el topbar */
+  .mainnav {
+    position: fixed;
+    inset: calc(var(--pbz-topbar-h, 64px) + .45rem) .75rem auto .75rem;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    padding: .4rem;
+    flex-direction: column;
+    align-items: stretch;
+    max-height: min(60vh, 420px);
+    overflow-y: auto;
+    display: none;
+    /* cerrado por defecto */
+    z-index: 39;
+  }
+
+  .mainnav.is-open {
+    display: flex;
+  }
+
+  .mainnav__link {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* Pill más compacta y sin texto largo si hace falta */
+  .pill b {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Avatar compacto: solo icono, sin nombre */
+  .avatar__name,
+  .avatar__caret {
+    display: none;
+  }
+
+  .avatar__btn {
+    padding-inline: .4rem;
+  }
+
+  .topbar__right {
+    gap: .4rem;
+  }
+}
+
+/* Muy ancho: un poco más de respiro en el header */
+@media (min-width: 1280px) {
+  .header {
+    padding-inline: 1.4rem;
+  }
+}

@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Presupuesto — Presupuesto base cero FS</title>
+
+  <!-- Fuentes / Íconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Rounded"
+    rel="stylesheet">
+
+  <!-- CSS global -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/config-overrides.css" />
+  <link rel="stylesheet" href="css/config-sidebar.css" />
+  <link rel="stylesheet" href="css/topbar.css" />
+
+  <style>
+    /* =================== Utilidades locales =================== */
+    .subheader {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: .35rem 0 1rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .25rem .6rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+    }
+
+    .sticky-summary {
+      position: sticky;
+      top: calc(64px + .75rem);
+      z-index: 5;
+    }
+
+    .text-success {
+      color: var(--success);
+    }
+
+    .text-warning {
+      color: var(--warning);
+    }
+
+    .text-danger {
+      color: var(--danger);
+    }
+
+    .row-actions {
+      display: flex;
+      gap: .35rem;
+      flex-wrap: wrap;
+    }
+
+    .badge-muted {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: .15rem .5rem;
+      color: var(--muted);
+      font-size: .75rem;
+    }
+
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--surface-2) 60%, white 10%);
+      border-radius: 10px;
+      min-height: 60px;
+    }
+
+    .skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+          transparent,
+          color-mix(in srgb, var(--fg) 10%, transparent),
+          transparent);
+      animation: shimmer 1.2s infinite;
+    }
+
+    @keyframes shimmer {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    /* =================== Panel Acciones / análisis =================== */
+
+    .analysis-grid {
+      display: grid;
+      gap: var(--space-3);
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .analysis-card {
+      padding: 1rem;
+      border-radius: var(--radius-lg, 12px);
+      background: var(--surface-2);
+      box-shadow: var(--shadow-sm, 0 2px 6px rgba(0, 0, 0, .25));
+    }
+
+    .analysis-card h3 {
+      margin: 0 0 .35rem;
+      font-size: 1rem;
+    }
+
+    .analysis-card p {
+      margin: 0;
+      font-size: .9rem;
+    }
+
+    .analysis-card p+p {
+      margin-top: .25rem;
+    }
+
+    .progress {
+      margin-top: .5rem;
+      height: 6px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface-3) 80%, black 5%);
+      overflow: hidden;
+    }
+
+    .progress__bar {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--primary);
+      transform-origin: left;
+    }
+
+    /* =================== Tabla de presupuesto =================== */
+
+    .table-wrap--budget {
+      max-height: 60vh;
+      overflow-y: auto;
+      position: relative;
+      border-radius: .75rem;
+      border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+      overflow: hidden;
+    }
+
+    .table-wrap--budget table {
+      border-collapse: collapse;
+      border-spacing: 0;
+      width: 100%;
+    }
+
+    /* Encabezado fijo */
+    .table-wrap--budget thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--surface-2);
+    }
+
+    .table-wrap--budget thead::after {
+      content: "";
+      position: sticky;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, .35);
+      pointer-events: none;
+    }
+
+    /* Quitamos look “card” genérico para esta tabla */
+    .table.table--budget tbody tr {
+      background: transparent !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+
+    .table.table--budget th,
+    .table.table--budget td {
+      padding: .35rem .6rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+      text-align: left;
+    }
+
+    .table.table--budget th+th,
+    .table.table--budget td+td {
+      border-left: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+    }
+
+    /* Hover sólo en filas de rubros */
+    .table.table--budget tbody tr:not(.section-head):hover td {
+      background: color-mix(in srgb, var(--surface-2) 60%, black 5%);
+    }
+
+    /* =================== Categorías (INGRESOS, AHORROS, etc.) =================== */
+
+    /* Fila de categoría, justo bajo “Rubro” */
+    .table.table--budget tbody tr.section-head td {
+      padding: .40rem .6rem .30rem;
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      border-top: 2px solid color-mix(in srgb, var(--border) 100%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+      background: color-mix(in srgb, var(--surface-2) 85%, black 5%);
+    }
+
+    .section-head .sec-label {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .section-head .sec-dot {
+      width: .55rem;
+      height: .55rem;
+      border-radius: 999px;
+      background: var(--muted);
+    }
+
+    .section-head--ingresos .sec-dot {
+      background: var(--success);
+    }
+
+    .section-head--ahorros .sec-dot {
+      background: var(--primary);
+    }
+
+    .section-head--provisiones .sec-dot {
+      background: var(--air-superiority-blue);
+    }
+
+    .section-head--gastos-fijos .sec-dot {
+      background: var(--warning);
+    }
+
+    .section-head--gastos-variables .sec-dot {
+      background: var(--danger);
+    }
+
+    .section-head--imprevistos .sec-dot {
+      background: plum;
+    }
+
+    .table.table--budget tbody tr.section-head td .badge-muted {
+      margin-left: .5rem;
+      font-size: .7rem;
+      text-transform: none;
+      letter-spacing: 0;
+      background: color-mix(in srgb, var(--surface) 80%, transparent);
+    }
+
+    /* =================== Rubros (subniveles dentro de cada categoría) =================== */
+
+    /* Columna de rubro: td con clases col-rubro / col-rubro--item */
+
+    .col-rubro {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      min-width: 0;
+    }
+
+    /* Rubros normales: sangrado respecto a la categoría */
+    .col-rubro--item .rubro-title {
+      margin-left: 1.6rem;
+      font-weight: 500;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    /* Para que el primer rubro se pegue visualmente a su categoría */
+    .table.table--budget tbody tr.section-head+tr>td {
+      border-top: none !important;
+    }
+
+    /* Línea vertical muy suave que marca la jerarquía (no es viñeta) */
+    .col-rubro--item::before {
+      content: "";
+      width: 1px;
+      align-self: stretch;
+      margin-left: .45rem;
+      background: color-mix(in srgb, var(--border) 80%, transparent);
+    }
+
+    /* =========================================================
+       VISTA RESPONSIVE (MÓVIL) PARA PRESUPUESTO DETALLADO
+       Tabla en desktop, tarjetas en móvil
+       ========================================================= */
+
+    /* Por defecto: usamos solo tabla, ocultamos tarjetas */
+    #presu-cards {
+      display: none;
+    }
+
+    .presu-card {
+      border-radius: 12px;
+      border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+      background: color-mix(in srgb, var(--surface-2) 96%, black 4%);
+      padding: .7rem .8rem;
+      display: grid;
+      gap: .35rem;
+    }
+
+    .presu-card__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: .5rem;
+    }
+
+    .presu-card__section {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+
+    .presu-card__rubro {
+      font-size: .9rem;
+      font-weight: 500;
+      margin-top: .05rem;
+      word-break: break-word;
+    }
+
+    .presu-card__status {
+      font-size: .85rem;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .presu-card__rows {
+      display: grid;
+      gap: .15rem;
+      font-size: .82rem;
+    }
+
+    .presu-card__row {
+      display: flex;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+
+    .presu-card__row-label {
+      color: var(--muted);
+    }
+
+    .presu-card__row-value {
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .presu-card__actions {
+      margin-top: .2rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: .25rem;
+    }
+
+    .presu-card__actions .btn {
+      padding-inline: .4rem;
+    }
+
+    /* --------- PUNTO DE CORTE: MÓVIL --------- */
+    @media (max-width: 768px) {
+
+      /* Ocultamos SOLO la tabla de detalle, no el resumen */
+      #panel-detalle .table-wrap--budget {
+        display: none;
+      }
+
+      #presu-cards {
+        display: grid;
+        gap: .6rem;
+      }
+    }
+
+    /* En desktop, nos aseguramos de que las tarjetas no estorben */
+    @media (min-width: 769px) {
+      #presu-cards {
+        display: none;
+      }
+    }
+  </style>
+
+
+
+</head>
+
+<body>
+  <!-- Toasts -->
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+  <header class="header" id="topbar"></header>
+  <div class="header__spacer"></div>
+
+  <!-- ===== Layout con barra lateral ===== -->
+  <main class="config" id="content">
+    <aside class="config__aside" aria-label="Secciones de Presupuesto">
+      <div class="config__aside-header">Presupuesto</div>
+      <ul class="sidelist" role="tablist" aria-orientation="vertical">
+        <li><a class="sidelink" role="tab" href="#resumen" data-section="resumen" aria-controls="panel-resumen">
+            <span class="material-symbols-rounded" aria-hidden="true">summarize</span><span>Resumen base cero</span></a>
+        </li>
+        <li><a class="sidelink" role="tab" href="#detalle" data-section="detalle" aria-controls="panel-detalle">
+            <span class="material-symbols-rounded" aria-hidden="true">table</span><span>Presupuesto detallado</span></a>
+        </li>
+        <li><a class="sidelink" role="tab" href="#acciones" data-section="acciones" aria-controls="panel-acciones">
+            <span class="material-symbols-rounded" aria-hidden="true">insights</span><span>Acciones y
+              análisis</span></a>
+        </li>
+      </ul>
+    </aside>
+
+    <section class="config__main">
+      <!-- Panel: Resumen -->
+      <section id="panel-resumen" class="panel sticky-summary" role="tabpanel" data-section="resumen">
+        <header class="panel__header">
+          <div>
+            <h2 style="margin:0">Resumen base cero</h2>
+            <small class="muted">Usando período: <span id="period-label">—</span></small>
+          </div>
+          <div class="header__spacer"></div>
+          <span id="period-badge" class="pill">
+            <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+            <span id="period-chip-label">—</span>
+          </span>
+        </header>
+        <div class="panel__body">
+          <div class="table-wrap table-wrap--budget">
+            <table class="table table--budget" id="tabla-resumen">
+              <colgroup>
+                <col class="col--rubro">
+                <col class="col--monto">
+                <col class="col--real">
+                <col class="col--estatus">
+                <col class="col--balance">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Rubro</th>
+                  <th class="cell--right">Presupuesto</th>
+                  <th class="cell--right">Real</th>
+                  <th class="cell--status">Estatus</th>
+                  <th class="cell--right">Balance</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Panel: Detalle por secciones -->
+      <section id="panel-detalle" class="panel" role="tabpanel" data-section="detalle" hidden>
+        <header class="panel__header">
+          <div>
+            <h2 style="margin:0">Presupuesto de <span id="titulo-mes">—</span></h2>
+            <small class="muted">Rubro por rubro</small>
+          </div>
+          <div class="header__spacer"></div>
+          <div class="row-actions">
+            <button id="btn-add" class="btn">
+              <span class="material-symbols-rounded" aria-hidden="true">add</span>
+              Agregar rubro
+            </button>
+            <button id="btn-cargar-anterior" class="btn">
+              <span class="material-symbols-rounded">file_copy</span> Cargar mes anterior
+            </button>
+          </div>
+        </header>
+        <div class="panel__body">
+          <div class="table-wrap table-wrap--budget">
+            <table class="table table--budget" id="tabla-items" aria-describedby="titulo-mes">
+              <colgroup>
+                <col class="col--rubro">
+                <col class="col--monto"> <!-- Presupuesto -->
+                <col class="col--real"> <!-- Real -->
+                <col class="col--estatus">
+                <col class="col--balance">
+                <col class="col--acciones">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Rubro</th>
+                  <th class="cell--right">Presupuesto</th>
+                  <th class="cell--right">Real</th>
+                  <th class="cell--status">Estatus</th>
+                  <th class="cell--right">Balance</th>
+                  <th class="cell--actions">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-presupuesto">
+                <tr>
+                  <td colspan="6" class="muted">Cargando presupuesto…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- NUEVO: vista tarjetas para móvil -->
+          <div id="presu-cards" class="presu-cards"></div>
+        </div>
+      </section>
+
+
+
+      <!-- Panel: Acciones -->
+      <section id="panel-acciones" class="panel" role="tabpanel" data-section="acciones" hidden>
+        <header class="panel__header">
+          <h2 style="margin:0">Acciones y análisis</h2>
+          <div class="header__spacer"></div>
+          <button id="btn-analisis" class="btn" aria-label="Analizar presupuesto">
+            <span class="material-symbols-rounded" aria-hidden="true">insights</span> Análisis
+          </button>
+        </header>
+        <div class="panel__body">
+          <p class="muted" id="analisis-intro">
+            Revisa cómo se va ejecutando tu presupuesto mensual en tiempo real.
+          </p>
+          <div id="analisis-resumen"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div id="modal-root"></div>
+
+  <!-- JS del proyecto -->
+  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/supabase.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/utils.js"></script>
+  <script type="module" src="js/period.js"></script>
+  <script type="module" src="js/presupuesto.js"></script>
+  <script type="module" src="js/section-nav.js"></script>
+
+  <script type="module">
+    import { mountTopbar } from './js/topbar.js';
+    mountTopbar({ active: 'presupuesto.html', title: document.title });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Configuración — Presupuesto base cero FS</title>
+
+  <!-- Fuentes e íconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Rounded"
+    rel="stylesheet" />
+
+  <!-- Estilos globales -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/config-overrides.css" />
+  <!-- Layout lateral de Config -->
+  <link rel="stylesheet" href="css/config-sidebar.css" />
+  <!-- NUEVO: topbar unificado -->
+  <link rel="stylesheet" href="css/topbar.css" />
+</head>
+
+<body>
+  <!-- Toasts globales -->
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Topbar unificado -->
+  <header class="header" id="topbar"></header>
+
+  <!-- ===== Config con barra lateral ===== -->
+  <main class="config" id="content">
+    <!-- Barra lateral -->
+    <aside class="config__aside" aria-label="Secciones de configuración">
+      <div class="config__aside-header">Configuración</div>
+      <ul class="sidelist" role="tablist" aria-orientation="vertical">
+        <li>
+          <a class="sidelink" role="tab" href="#usuarios" aria-controls="panel-usuarios" data-section="usuarios">
+            <span class="material-symbols-rounded" aria-hidden="true">group</span>
+            <span>Usuarios del presupuesto</span>
+            <span class="badge"><span id="users-count">0</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#moneda" aria-controls="panel-moneda" data-section="moneda">
+            <span class="material-symbols-rounded" aria-hidden="true">monetization_on</span>
+            <span>Moneda del sistema</span>
+            <span class="badge">ISO</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#gastos" aria-controls="panel-gastos" data-section="gastos">
+            <span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>
+            <span>Gastos fijos</span>
+            <span class="badge"><span id="gastos-count">0</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="sidelink" role="tab" href="#finalizar" aria-controls="panel-finalizar" data-section="finalizar">
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>Finalizar primer inicio</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Paneles -->
+    <section class="config__main">
+      <!-- Panel: Usuarios -->
+      <section id="panel-usuarios" class="panel" role="tabpanel" aria-labelledby="tab-usuarios">
+        <header class="panel__header">
+          <div>
+            <div class="eyebrow">Sección A</div>
+            <h2>Usuarios del presupuesto</h2>
+            <small class="muted">Administra las personas que utilizarán la plataforma.</small>
+          </div>
+          <div class="header__spacer"></div>
+          <button id="btn-add-user" class="btn" aria-haspopup="dialog">
+            <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
+            Agregar usuario
+          </button>
+        </header>
+        <div class="panel__body">
+          <div class="note">
+            <strong>Nota:</strong> para efectos de la plataforma, <em>catorcenal</em> y <em>quincenal</em> funcionan
+            igual (dos pagos por mes). Si recibes un salario extra durante el mes, puedes agregarlo en
+            <strong>Ingresos</strong> (pág. 4 Presupuesto).
+          </div>
+
+          <div class="toolbar">
+            <label class="search" aria-label="Buscar usuario">
+              <span class="material-symbols-rounded" aria-hidden="true">search</span>
+              <input id="users-search" type="search" placeholder="Buscar por nombre…" />
+            </label>
+          </div>
+          <div class="table-wrap table-wrap--users">
+            <table class="table table--users" id="tabla-usuarios">
+              <colgroup>
+                <col class="col--nombre">
+                <col class="col--tipo">
+                <col class="col--modalidad">
+                <col class="col--acciones">
+              </colgroup>
+              <!-- thead y tbody como ya lo tienes -->
+            </table>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" aria-describedby="usuarios-title">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tipo de pago</th>
+                  <th>Modalidad</th>
+                  <th class="right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <tr>
+                  <td colspan="4" class="muted">No hay usuarios aún.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel: Moneda -->
+      <section id="panel-moneda" class="panel" role="tabpanel" aria-labelledby="tab-moneda" hidden>
+        <header class="panel__header">
+          <div>
+            <div class="eyebrow">Sección B</div>
+            <h2>Moneda del sistema</h2>
+            <small class="muted">Afecta solo el formato de dinero; no realiza conversiones.</small>
+          </div>
+        </header>
+        <div class="panel__body">
+          <div class="row" style="display:flex;gap:1rem;flex-wrap:wrap">
+            <div class="input" style="min-width:260px">
+              <label for="currency" class="required">Moneda predeterminada</label>
+              <select id="currency" required>
+                <option value="USD">USD — Dólar estadounidense</option>
+                <option value="CRC">CRC — Colón costarricense</option>
+                <option value="EUR">EUR — Euro</option>
+              </select>
+              <p class="help">Puedes elegir otra moneda ISO 4217 en “Más monedas”.</p>
+            </div>
+
+            <div class="input" style="min-width:260px">
+              <label for="currency-extended">Más monedas (ISO 4217)</label>
+              <select id="currency-extended">
+                <option value="">— Selecciona —</option>
+              </select>
+              <p class="help">Si eliges aquí, se sobrepone a la selección anterior.</p>
+            </div>
+          </div>
+
+          <div class="actions-row" style="display:flex;gap:.5rem;margin-top:1rem">
+            <button class="btn btn--ghost" id="save-currency-btn">
+              <span class="material-symbols-rounded" aria-hidden="true">save</span>
+              Guardar moneda
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel: Gastos fijos -->
+      <section id="panel-gastos" class="panel" role="tabpanel" aria-labelledby="tab-gastos" hidden>
+        <header class="panel__header">
+          <div>
+            <div class="eyebrow">Sección C</div>
+            <h2>Gastos fijos</h2>
+            <small class="muted">Se cargarán automáticamente en Presupuesto (pág. 4) y no serán editables allí.</small>
+          </div>
+          <div class="header__spacer"></div>
+          <button id="btn-add-gasto" class="btn" aria-haspopup="dialog">
+            <span class="material-symbols-rounded" aria-hidden="true">add</span>
+            Agregar gasto fijo
+          </button>
+        </header>
+        <div class="panel__body">
+          <div class="toolbar">
+            <label class="search" aria-label="Buscar gasto fijo">
+              <span class="material-symbols-rounded" aria-hidden="true">search</span>
+              <input id="gastos-search" type="search" placeholder="Buscar por rubro…" />
+            </label>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" aria-describedby="gastos-title">
+              <thead>
+                <tr>
+                  <th>Rubro</th>
+                  <th class="right">Presupuesto</th>
+                  <th>Vigente desde</th>
+                  <th class="right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="gastos-tbody">
+                <tr>
+                  <td colspan="4" class="muted">No hay gastos fijos aún.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="note" style="margin-top:1rem">
+            <strong>Regla de vigencia:</strong> si modificas un gasto aquí, el cambio rige desde el mes actual y no
+            reescribe meses previos.
+          </p>
+        </div>
+      </section>
+
+      <!-- Panel: Finalizar -->
+      <section id="panel-finalizar" class="panel" role="tabpanel" aria-labelledby="tab-finalizar" hidden>
+        <header class="panel__header">
+          <h2>Finalizar configuración inicial</h2>
+        </header>
+        <div class="panel__body">
+          <p class="muted">Debes tener al menos <strong>un usuario del presupuesto</strong> para finalizar. Puedes
+            agregar gastos fijos más tarde.</p>
+          <div class="actions-row" style="display:flex;gap:.5rem">
+            <button class="btn" id="finish-btn" disabled>
+              <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+              Terminar primer inicio
+            </button>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Modales -->
+  <div id="modal-root"></div>
+
+  <!-- Scripts base -->
+  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/supabase.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/utils.js"></script>
+  <script type="module" src="js/period.js"></script>
+
+  <!-- Lógica de configuración -->
+  <script type="module" src="js/configuracion.js"></script>
+  <!-- Navegación de secciones -->
+  <script type="module" src="js/config-nav.js"></script>
+
+  <!-- NUEVO: montar topbar unificado -->
+  <script type="module">
+    import { mountTopbar } from './js/topbar.js';
+    mountTopbar({ active: 'config.html', title: document.title });
+  </script>
+</body>
+
+</html>

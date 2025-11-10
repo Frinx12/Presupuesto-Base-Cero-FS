@@ -1,0 +1,1033 @@
+/* ===============================
+   Presupuesto base cero FS
+   CONFIG — Tema moderno “Pro”
+   (drop-in override)
+   =============================== */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* base */
+  --bg: #0b0c10;
+  --card: #0f1117;
+  --fg: #e8eaf0;
+  --muted: #a4a9b6;
+  --border: #1f2430;
+
+  /* brand */
+  --primary: #6ea8fe;
+  /* azul suave */
+  --primary-ink: #0b1324;
+  --success: #35d17e;
+  --danger: #ff6b6b;
+  --warning: #f6c760;
+
+  /* elevación y radios */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --shadow-1: 0 6px 18px rgba(0, 0, 0, .22);
+  --shadow-2: 0 8px 28px rgba(0, 0, 0, .28);
+
+  /* tipografía */
+  --font-body: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+
+  /* states */
+  --ring: 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+:root[data-theme="light"] {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --fg: #151922;
+  --muted: #586077;
+  --border: #e6e8ef;
+  --primary: #3b82f6;
+  --primary-ink: #0b1220;
+  --shadow-1: 0 6px 16px rgba(10, 16, 30, .08);
+  --shadow-2: 0 14px 36px rgba(10, 16, 30, .10);
+}
+
+/* ---------- Base ---------- */
+html,
+body {
+  background: radial-gradient(1200px 800px at 10% -10%, rgba(99, 102, 241, .07), transparent 40%),
+    radial-gradient(900px 700px at 110% 20%, rgba(56, 189, 248, .05), transparent 45%),
+    var(--bg);
+  font-family: var(--font-body);
+  color: var(--fg);
+}
+
+.header {
+  backdrop-filter: saturate(1.2) blur(10px);
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---------- Layout 2x2 ---------- */
+.content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(420px, 1fr));
+  gap: 1.25rem;
+  padding: 1.25rem clamp(.8rem, 2vw, 1.5rem);
+  align-content: start;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* coloca las 4 secciones en 2x2 orden natural */
+.content>.card {
+  min-height: 360px;
+}
+
+/* ---------- Card ---------- */
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--card) 92%, black 6%), var(--card));
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--card) 92%, white 3%), var(--card));
+  z-index: 1;
+}
+
+.card__header .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+.card__header h2 {
+  margin: .15rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.card__body {
+  padding: 1rem 1rem 1.1rem;
+  display: grid;
+  gap: .9rem;
+}
+
+/* ---------- Controles ---------- */
+.btn {
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, var(--border));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--primary) 22%, transparent), transparent);
+  color: var(--fg);
+  padding: .6rem .9rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: transform .06s ease, background .2s ease, border-color .2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn[aria-busy="true"] {
+  opacity: .8;
+  pointer-events: none;
+}
+
+.btn--ghost {
+  background: transparent;
+  border: 1px dashed var(--border);
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+}
+
+.btn-icon:hover {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.badge {
+  display: inline-flex;
+  gap: .4rem;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--primary) 38%, var(--border));
+  background: color-mix(in srgb, var(--primary) 16%, transparent);
+  color: var(--fg);
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  font-size: .85rem;
+}
+
+/* ---------- Toolbar / Search ---------- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  flex-wrap: wrap;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  height: 38px;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 86%, black 4%);
+}
+
+.search input {
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--fg);
+}
+
+/* ---------- Inputs ---------- */
+.input label {
+  font-weight: 600;
+}
+
+.input .required::after {
+  content: " *";
+  color: var(--danger);
+}
+
+.input input,
+.input select {
+  width: 100%;
+  background: color-mix(in srgb, var(--card) 88%, black 6%);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: .6rem .65rem;
+  border-radius: var(--radius-sm);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.input input:focus,
+.input select:focus {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--border));
+  box-shadow: var(--ring);
+}
+
+.input .help {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.input__error {
+  color: var(--danger);
+  font-size: .86rem;
+  margin-top: .25rem;
+}
+
+/* ---------- Tabla ---------- */
+.table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: clip;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .95rem;
+}
+
+.table thead th {
+  text-align: left;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--card) 92%, black 6%);
+  border-bottom: 1px solid var(--border);
+  padding: .6rem .75rem;
+}
+
+.table tbody td {
+  padding: .65rem .75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.table .right {
+  text-align: right;
+}
+
+.money {
+  font-variant-numeric: tabular-nums;
+}
+
+.table tbody td.muted {
+  text-align: center;
+  color: var(--muted);
+  padding: 1rem;
+}
+
+/* ---------- Notas / Alertas ---------- */
+.note {
+  border: 1px dashed color-mix(in srgb, var(--warning) 45%, var(--border));
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
+  color: color-mix(in srgb, var(--fg) 90%, var(--warning) 5%);
+  border-radius: var(--radius-sm);
+  padding: .75rem .85rem;
+  line-height: 1.4;
+}
+
+/* ---------- Accesibilidad ---------- */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+  border-radius: 10px;
+}
+
+/* ---------- Micro-animaciones ---------- */
+* {
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+/* ===============================
+   Tablas compactas tipo Excel
+   =============================== */
+
+/* Estilo general reutilizable */
+.table.compact {
+  font-size: .92rem;
+  /* un poco más chica */
+  table-layout: auto;
+}
+
+.table.compact thead th,
+.table.compact tbody td {
+  padding: .40rem .55rem;
+  /* filas más juntas */
+  line-height: 1.15;
+  vertical-align: middle;
+  /* alinea con iconos */
+}
+
+.table.compact thead th {
+  height: 36px;
+  /* alto del header reducido */
+}
+
+.table.compact tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 7%, transparent);
+}
+
+/* Columna de acciones compacta y alineada a la derecha */
+.table.compact th:last-child,
+.table.compact td:last-child {
+  width: 124px;
+  /* espacio fijo para 2–3 iconos */
+  text-align: right;
+}
+
+.table.compact td:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .35rem;
+}
+
+/* Botones de acción más pequeños */
+.table.compact td:last-child .btn-icon,
+.table.compact td:last-child button,
+.table.compact td:last-child a {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+}
+
+/* Números/montos a la derecha (usa la 2ª col como "Presupuesto") */
+.table.compact th:nth-child(2),
+.table.compact td:nth-child(2) {
+  text-align: right;
+  /* "Presupuesto" alineado con montos */
+  font-variant-numeric: tabular-nums;
+  width: 160px;
+  /* ancho consistente */
+}
+
+/* Columna "Vigente desde" con ancho estable */
+.table.compact th:nth-child(3),
+.table.compact td:nth-child(3) {
+  width: 120px;
+  white-space: nowrap;
+}
+
+/* ---------------------------------
+   Fallback específico: panel Gastos
+   (por si no puedes agregar .compact)
+   --------------------------------- */
+#panel-gastos .table thead th,
+#panel-gastos .table tbody td {
+  padding: .40rem .55rem;
+  line-height: 1.15;
+  vertical-align: middle;
+}
+
+#panel-gastos .table thead th {
+  height: 36px;
+}
+
+#panel-gastos .table th:nth-child(2),
+#panel-gastos .table td:nth-child(2) {
+  text-align: right;
+  /* "Presupuesto" */
+  font-variant-numeric: tabular-nums;
+  width: 160px;
+}
+
+#panel-gastos .table th:nth-child(3),
+#panel-gastos .table td:nth-child(3) {
+  width: 120px;
+  /* "Vigente desde" */
+  white-space: nowrap;
+}
+
+#panel-gastos .table th:last-child,
+#panel-gastos .table td:last-child {
+  width: 124px;
+  text-align: right;
+}
+
+#panel-gastos .table td:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .35rem;
+}
+
+#panel-gastos .table td:last-child .btn-icon,
+#panel-gastos .table td:last-child button,
+#panel-gastos .table td:last-child a {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+}
+
+/* ===========================
+   PBZ — Tabla Presupuesto
+   =========================== */
+
+/* offset del header global (ajústalo si cambia la altura) */
+:root {
+  --pbz-topbar-h: 64px;
+}
+
+/* contenedor con scroll y header pegajoso */
+.table-wrap--budget {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: auto;
+  /* scroll vertical/horizontal si hace falta */
+  max-height: calc(100vh - (var(--pbz-topbar-h) + 140px));
+  /* visible en pantalla */
+  background: var(--surface);
+}
+
+/* tabla compacta tipo Excel */
+.table--budget {
+  width: 100%;
+  border-collapse: separate;
+  /* permite sticky en thead */
+  border-spacing: 0;
+  table-layout: fixed;
+  /* columnas de ancho estable */
+  font-size: .93rem;
+}
+
+/* colgroup define anchos consistentes (ver HTML) */
+.table--budget col.col--rubro {
+  width: 38%;
+}
+
+.table--budget col.col--monto {
+  width: 13%;
+}
+
+/* Presupuesto */
+.table--budget col.col--real {
+  width: 13%;
+}
+
+/* Real */
+.table--budget col.col--estatus {
+  width: 10%;
+}
+
+.table--budget col.col--balance {
+  width: 13%;
+}
+
+.table--budget col.col--acciones {
+  width: 13%;
+}
+
+/* iconos */
+
+@media (max-width: 1200px) {
+  .table--budget col.col--rubro {
+    width: 34%;
+  }
+
+  .table--budget col.col--acciones {
+    width: 120px;
+  }
+}
+
+/* encabezado negro fijo */
+.table--budget thead th {
+  position: sticky;
+  top: var(--pbz-topbar-h);
+  /* se queda debajo del topbar */
+  z-index: 5;
+  background: #0b0b0b;
+  /* negro del header */
+  color: #eaeaea;
+  text-align: left;
+  font-weight: 700;
+  padding: .48rem .6rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+/* filas compactas + hover sutil */
+.table--budget tbody td {
+  padding: .42rem .6rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  vertical-align: middle;
+}
+
+.table--budget tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 9%, transparent);
+}
+
+/* alineaciones numéricas y tipografía tabular */
+.table--budget .cell--money,
+.table--budget .cell--right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* estatus centrado */
+.table--budget .cell--status {
+  text-align: center;
+}
+
+/* columna de acciones consistente y pegada a la derecha */
+.table--budget td.cell--actions,
+.table--budget th.cell--actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table--budget td.cell--actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .35rem;
+}
+
+.table--budget td.cell--actions .btn-icon,
+.table--budget td.cell--actions button,
+.table--budget td.cell--actions a {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  padding: 0;
+}
+
+/* sangría visual para subrubros (si los usas) */
+.table--budget .is-sub td:first-child {
+  padding-left: 1.4rem;
+}
+
+.table--budget .is-sub2 td:first-child {
+  padding-left: 2.2rem;
+}
+
+/* cuando hay badges o íconos en la primera col, que no rompan el flujo */
+.table--budget td:first-child {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  min-width: 0;
+  /* evita saltos por textos largos */
+}
+
+/* fija la fila de categoría (Ingresos, Ahorros, etc.) si la renderizas como TR dentro de TBODY */
+.table--budget tr.row--group>td {
+  position: sticky;
+  left: 0;
+  /* se queda fija al hacer scroll horizontal */
+  background: color-mix(in srgb, var(--surface) 95%, black 5%);
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+
+/* zebra opcional (sutil para lectura tipo Excel) */
+.table--budget tbody tr:nth-child(odd):not(.row--group) {
+  background: color-mix(in srgb, var(--surface) 96%, black 4%);
+}
+
+/* Parche rápido sin cambiar HTML (ajusta #panel-usuarios si difiere) */
+#panel-usuarios .table {
+  table-layout: fixed;
+}
+
+#panel-usuarios .table thead th,
+#panel-usuarios .table tbody td {
+  padding: .46rem .65rem;
+  vertical-align: middle;
+}
+
+#panel-usuarios .table thead th:last-child,
+#panel-usuarios .table tbody td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+#panel-usuarios .table tbody td:last-child {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .35rem;
+}
+
+#panel-usuarios .table tbody td:last-child .btn-icon,
+#panel-usuarios .table tbody td:last-child button,
+#panel-usuarios .table tbody td:last-child a {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  padding: 0;
+}
+
+
+/* ===== Scroll interno y encabezado fijo (Presupuesto + Gastos fijos) ===== */
+
+/* Alturas de referencia (ajústalas si cambian cabeceras internas) */
+:root {
+  --pbz-topbar-h: 64px;
+}
+
+/* alto de tu topbar */
+
+#panel-resumen,
+#panel-detalle,
+#panel-gastos {
+  overflow: visible;
+  /* evita que 'overflow: clip' rompa el sticky interno */
+}
+
+/* el contenedor que hace scroll interno */
+#panel-resumen .table-wrap,
+#panel-detalle .table-wrap,
+#panel-gastos .table-wrap {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: auto;
+  /* ¡scroll interno aquí! */
+  background: var(--surface);
+  /* altura disponible en viewport (resta topbar + header del panel + margen) */
+  max-height: calc(100vh - (var(--pbz-topbar-h) + 170px));
+}
+
+/* tabla estable para que todo alinee */
+#panel-resumen .table,
+#panel-detalle .table,
+#panel-gastos .table {
+  width: 100%;
+  border-collapse: separate;
+  /* necesario para sticky en thead */
+  border-spacing: 0;
+  table-layout: fixed;
+  /* columnas con ancho consistente */
+  font-size: .94rem;
+}
+
+/* encabezado negro fijo (sticky dentro del contenedor con scroll) */
+#panel-resumen .table thead th,
+#panel-detalle .table thead th,
+#panel-gastos .table thead th {
+  position: sticky;
+  top: 0;
+  /* clave: 0 porque el scroll es interno */
+  z-index: 5;
+  background: #0b0b0b;
+  color: #eaeaea;
+  text-align: left;
+  font-weight: 700;
+  padding: .50rem .65rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+/* filas compactas y alineación */
+#panel-resumen .table tbody td,
+#panel-detalle .table tbody td,
+#panel-gastos .table tbody td {
+  padding: .46rem .65rem;
+  vertical-align: middle;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+#panel-resumen .table tbody tr:hover,
+#panel-detalle .table tbody tr:hover,
+#panel-gastos .table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 9%, transparent);
+}
+
+/* números a la derecha con cifras tabulares */
+#panel-resumen .table .right,
+#panel-detalle .table .right,
+#panel-gastos .table .right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* columna de acciones alineada y consistente */
+#panel-resumen .table thead th:last-child,
+#panel-detalle .table thead th:last-child,
+#panel-gastos .table thead th:last-child,
+#panel-resumen .table tbody td:last-child,
+#panel-detalle .table tbody td:last-child,
+#panel-gastos .table tbody td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+#panel-resumen .table tbody td:last-child,
+#panel-detalle .table tbody td:last-child,
+#panel-gastos .table tbody td:last-child {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .35rem;
+}
+
+#panel-resumen .table tbody td:last-child .btn-icon,
+#panel-detalle .table tbody td:last-child .btn-icon,
+#panel-gastos .table tbody td:last-child .btn-icon,
+#panel-resumen .table tbody td:last-child button,
+#panel-detalle .table tbody td:last-child button,
+#panel-gastos .table tbody td:last-child button,
+#panel-resumen .table tbody td:last-child a,
+#panel-detalle .table tbody td:last-child a,
+#panel-gastos .table tbody td:last-child a {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  padding: 0;
+}
+
+/* ========= PBZ — Tabla tipo Excel (Presupuesto + Gastos fijos) ========= */
+
+/* 1) Primera columna sticky (Rubro) */
+.table--budget th:first-child,
+.table--budget td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  /* por encima del resto */
+  background: color-mix(in srgb, var(--surface) 98%, black 2%);
+  /* separador visual a la derecha de la col pegada */
+  box-shadow: 1px 0 0 color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+/* Gastos fijos (config) – aplica lo mismo sin cambiar HTML */
+#panel-gastos .table th:first-child,
+#panel-gastos .table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--surface) 98%, black 2%);
+  box-shadow: 1px 0 0 color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+/* 2) Encabezado pegajoso con leve sombra para separar del contenido */
+.table--budget thead th,
+#panel-gastos .table thead th {
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--border) 80%, transparent);
+  /* si el header es negro ya queda bien; en config también funciona */
+}
+
+/* 3) Anchos estables: Acciones y Estatus */
+.table--budget col.col--acciones {
+  width: 112px;
+}
+
+/* fijo para que no “salte” */
+.table--budget col.col--estatus {
+  width: 96px;
+}
+
+#panel-gastos .table th:nth-child(4),
+#panel-gastos .table td:nth-child(4) {
+  /* en Config: 4ta col = Acciones */
+  width: 112px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* 4) Alineaciones coherentes */
+.table--budget .cell--status {
+  text-align: center;
+}
+
+.table--budget .cell--right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#panel-gastos .table th:nth-child(2),
+#panel-gastos .table td:nth-child(2) {
+  /* Presupuesto en Config */
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  width: 160px;
+}
+
+#panel-gastos .table th:nth-child(3),
+#panel-gastos .table td:nth-child(3) {
+  white-space: nowrap;
+  width: 120px;
+  /* Vigente desde */
+}
+
+/* 5) Columna de acciones: botones compactos y alineados */
+.table--budget td.cell--actions,
+#panel-gastos .table tbody td:last-child {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .35rem;
+}
+
+.table--budget td.cell--actions .btn-icon,
+#panel-gastos .table tbody td:last-child .btn-icon,
+#panel-gastos .table tbody td:last-child button,
+#panel-gastos .table tbody td:last-child a {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  padding: 0;
+}
+
+/* 6) Filas un poco más compactas (como Excel) */
+.table--budget tbody td,
+#panel-gastos .table tbody td {
+  padding: .44rem .6rem;
+}
+
+/* 7) Scrollbar más delgada dentro del contenedor con scroll */
+.table-wrap--budget::-webkit-scrollbar,
+#panel-gastos .table-wrap::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.table-wrap--budget::-webkit-scrollbar-thumb,
+#panel-gastos .table-wrap::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: 10px;
+}
+
+.table-wrap--budget::-webkit-scrollbar-track,
+#panel-gastos .table-wrap::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-radius: 10px;
+}
+
+/* 8) (Opcional) un pelín más de alto útil al contenedor con scroll */
+.table-wrap--budget {
+  max-height: calc(100vh - (var(--pbz-topbar-h) + 150px));
+}
+
+/* ===== Alineación estricta de columnas numéricas (Presupuesto, Real, Balance) ===== */
+/* Aplica a Presupuesto (col 2), Real (col 3) y Balance (col 5) en ambas tablas del Presupuesto */
+.table--budget thead th:nth-child(2),
+.table--budget thead th:nth-child(3),
+.table--budget thead th:nth-child(5),
+.table--budget tbody td:nth-child(2),
+.table--budget tbody td:nth-child(3),
+.table--budget tbody td:nth-child(5) {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  /* números de ancho fijo */
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  /* refuerzo por si el browser/variable font lo requiere */
+  white-space: nowrap;
+}
+
+/* Igual en el panel de Gastos fijos (Config): Presupuesto=2, Vigente=3 (no numérico),
+   Acciones=4. Para esa tabla solo reforzamos la 2 (monto). */
+#panel-gastos .table thead th:nth-child(2),
+#panel-gastos .table tbody td:nth-child(2) {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  white-space: nowrap;
+}
+
+/* Opcional: asegura mismo padding para columnas numéricas (evita “saltitos” visuales) */
+.table--budget thead th:nth-child(2),
+.table--budget thead th:nth-child(3),
+.table--budget thead th:nth-child(5),
+.table--budget tbody td:nth-child(2),
+.table--budget tbody td:nth-child(3),
+.table--budget tbody td:nth-child(5) {
+  padding-left: .6rem;
+  padding-right: .6rem;
+}
+
+/* Si alguna celda numérica trae badges/íconos, no permitas que rompan el flujo */
+.table--budget tbody td:nth-child(2)>*,
+.table--budget tbody td:nth-child(3)>*,
+.table--budget tbody td:nth-child(5)>* {
+  vertical-align: middle;
+}
+
+/* ======== Tablas globales ordenadas (Control, TC, etc.) ======== */
+
+/* Header pegajoso dentro del contenedor con scroll */
+#panel-movimientos .table thead th,
+#panel-tarjeta .table thead th {
+  position: sticky;
+  top: 0;
+  /* scroll interno del .table-wrap */
+  z-index: 5;
+  background: #0b0b0b;
+  color: #eaeaea;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+/* Scroll vertical interno como Presupuesto */
+#panel-movimientos .table-wrap,
+#panel-tarjeta .table-wrap {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: auto;
+  max-height: calc(100vh - (var(--pbz-topbar-h) + 170px));
+  background: var(--surface);
+}
+
+/* Tabla estable + filas compactas */
+#panel-movimientos .table,
+#panel-tarjeta .table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-size: .93rem;
+}
+
+#panel-movimientos .table tbody td,
+#panel-tarjeta .table tbody td {
+  padding: .44rem .6rem;
+  vertical-align: middle;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+#panel-movimientos .table tbody tr:hover,
+#panel-tarjeta .table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 9%, transparent);
+}
+
+/* Alineación numérica (tabular) por columna */
+#mov-table thead th:nth-child(6),
+#mov-table tbody td:nth-child(6),
+#cc-table thead th:nth-child(3),
+#cc-table tbody td:nth-child(3),
+#cc-payments-table thead th:nth-child(3),
+#cc-payments-table tbody td:nth-child(3) {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  white-space: nowrap;
+}
+
+/* Columna de acciones a la derecha y con botones compactos */
+#mov-table thead th:last-child,
+#mov-table tbody td:last-child,
+#cc-payments-table thead th:last-child,
+#cc-payments-table tbody td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+#mov-table tbody td:last-child,
+#cc-payments-table tbody td:last-child {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .35rem;
+}
+
+#mov-table tbody td:last-child .btn-icon,
+#mov-table tbody td:last-child button,
+#mov-table tbody td:last-child a,
+#cc-payments-table tbody td:last-child .btn-icon,
+#cc-payments-table tbody td:last-child button,
+#cc-payments-table tbody td:last-child a {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  padding: 0;
+}
+
+/* Scrollbar delgada (igual que presupuesto) */
+#panel-movimientos .table-wrap::-webkit-scrollbar,
+#panel-tarjeta .table-wrap::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+#panel-movimientos .table-wrap::-webkit-scrollbar-thumb,
+#panel-tarjeta .table-wrap::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: 10px;
+}
+
+#panel-movimientos .table-wrap::-webkit-scrollbar-track,
+#panel-tarjeta .table-wrap::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-radius: 10px;
+}

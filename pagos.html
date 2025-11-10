@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pagos mensuales — PBZ-FS</title>
+
+  <!-- Estilos globales -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/config-overrides.css">
+  <link rel="stylesheet" href="css/config-sidebar.css">
+  <link rel="stylesheet" href="css/topbar.css">
+
+  <!-- Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Material+Symbols+Rounded"
+    rel="stylesheet">
+
+  <style>
+    .header-area {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: .5rem
+    }
+
+    .title-line {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap
+    }
+
+    .period-badge {
+      font-size: .85rem;
+      padding: .2rem .5rem;
+      border-radius: .5rem;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--muted)
+    }
+
+    .actions {
+      display: flex;
+      gap: .5rem;
+      align-items: center;
+      flex-wrap: wrap
+    }
+
+    .card-form {
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      background: var(--surface);
+      overflow: hidden;
+      margin: .75rem 0 1rem
+    }
+
+    .card-form header {
+      padding: .9rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      font-weight: 700
+    }
+
+    .card-form .body {
+      padding: 1rem
+    }
+
+    .row {
+      display: grid;
+      gap: .75rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))
+    }
+
+    .field {
+      display: grid;
+      gap: .25rem
+    }
+
+    input[type="date"],
+    input[type="number"],
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: .6rem .7rem;
+      border-radius: .6rem;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--fg)
+    }
+
+    .table-wrap {
+      max-width: 100%;
+      overflow: auto
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .93rem
+    }
+
+    th,
+    td {
+      padding: .5rem .6rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap
+    }
+
+    .monto {
+      text-align: right
+    }
+
+    td.estado {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      white-space: nowrap;
+      /* 👈 evita que el texto 'pendiente' salte de línea */
+    }
+
+
+    .check {
+      width: 1.1rem;
+      height: 1.1rem;
+      border-radius: 50%;
+      border: 2px solid var(--danger);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer
+    }
+
+    .check.realizado {
+      border-color: var(--success);
+      background: color-mix(in oklab, var(--success) 20%, transparent)
+    }
+
+    .tag {
+      font-size: .75rem;
+      padding: .1rem .45rem;
+      border-radius: .45rem;
+      border: 1px solid var(--border);
+      background: var(--surface-2)
+    }
+
+    .empty {
+      padding: 1.2rem;
+      color: var(--muted)
+    }
+
+    dialog.bpzf-modal::backdrop {
+      background: color-mix(in oklab, black 35%, transparent)
+    }
+
+    dialog.bpzf-modal {
+      border: none;
+      border-radius: 1rem;
+      padding: 0;
+      width: min(900px, 94vw);
+      background: var(--surface-2);
+      color: var(--fg)
+    }
+
+    .modal-head {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .modal-body {
+      padding: 1rem;
+      max-height: min(70vh, 65rem);
+      overflow: auto
+    }
+
+    .modal-foot {
+      padding: .8rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: .5rem;
+      justify-content: flex-end;
+      flex-wrap: wrap
+    }
+
+    /* Subtabla de salarios por quincena */
+    .subs-wrap {
+      margin: .5rem 0 1rem;
+      border: 1px dashed var(--border);
+      border-radius: .75rem;
+      background: var(--surface-2)
+    }
+
+    .subs-wrap header {
+      padding: .5rem .75rem;
+      border-bottom: 1px dashed var(--border);
+      font-weight: 700;
+      font-size: .95rem
+    }
+
+    .subs-wrap .body {
+      padding: .5rem .75rem
+    }
+
+    .subs-table th,
+    .subs-table td {
+      padding: .35rem .5rem;
+      border-bottom: 1px solid var(--border);
+      font-size: .9rem
+    }
+
+    .subs-table th {
+      font-weight: 700
+    }
+
+    .subs-table td.num {
+      text-align: right
+    }
+
+    .pos {
+      color: var(--success)
+    }
+
+    .neg {
+      color: var(--danger)
+    }
+
+    .subs-table th.num,
+    .subs-table td.num {
+      text-align: right;
+    }
+
+    /* Compactar las filas de las tablas de quincenas igual que la subtabla */
+    #tbl-q1 th,
+    #tbl-q1 td,
+    #tbl-q2 th,
+    #tbl-q2 td {
+      padding: .35rem .5rem;
+    }
+
+    /* Celda de acciones: botones alineados en fila, pegaditos */
+    td.acciones .row-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: .25rem;
+    }
+
+    td.acciones {
+      white-space: nowrap;
+    }
+
+
+    th.acciones,
+    td.acciones {
+      text-align: right;
+    }
+
+    /* Contenedor con scroll para las tablas de pagos */
+    .table-wrap.table-scroll {
+      max-height: 60vh;
+      /* ajusta si quieres más o menos alto */
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Encabezado pegajoso dentro del contenedor scroll */
+    .table-wrap.table-scroll table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--surface);
+      /* o var(--surface-2) si te gusta más */
+    }
+
+    td.estado {
+      white-space: normal;
+      /* permitimos salto de línea para la leyenda */
+    }
+
+    .estado-main {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .estado-extra {
+      margin-top: .15rem;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    /* ===== Resumen "X le debe pasar Y a Z" por quincena ===== */
+
+    .subs-layout {
+      display: grid;
+      gap: .75rem;
+      grid-template-columns: minmax(230px, 1.4fr) 2fr;
+      /* izquierda resumen, derecha tabla */
+      align-items: flex-start;
+    }
+
+    @media (max-width: 900px) {
+      .subs-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .transfers-box {
+      padding: .6rem .7rem;
+      border-radius: .75rem;
+      background: color-mix(in srgb, var(--surface) 80%, black 5%);
+      border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+      font-size: .82rem;
+    }
+
+    .transfers-box h4 {
+      margin: 0 0 .25rem;
+      font-size: .9rem;
+    }
+
+    .transfers-box p {
+      margin: 0 0 .25rem;
+    }
+
+    .transfers-list {
+      list-style: none;
+      /* sin viñetas visibles */
+      margin: 0;
+      padding-left: 0;
+    }
+
+    .transfers-list li+li {
+      margin-top: .15rem;
+    }
+
+    .transfers-total {
+      margin-top: .35rem;
+      font-weight: 600;
+      font-size: .8rem;
+    }
+
+    /* Ajuste del estado (ya lo modificaste antes, pero lo dejo consolidado) */
+    td.estado {
+      white-space: normal;
+    }
+
+    .estado-main {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .estado-extra {
+      margin-top: .15rem;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+  <header class="header" id="topbar"></header>
+  <div class="header__spacer"></div>
+
+  <main class="config" id="content">
+    <aside class="config__aside" aria-label="Secciones de Pagos mensuales">
+      <div class="config__aside-header">Pagos mensuales</div>
+      <ul class="sidelist" role="tablist" aria-orientation="vertical">
+        <li><a class="sidelink" role="tab" href="#form" data-section="form" aria-controls="panel-form">
+            <span class="material-symbols-rounded" aria-hidden="true">post_add</span><span>Nuevo / editar</span></a>
+        </li>
+        <li><a class="sidelink" role="tab" href="#q1" data-section="q1" aria-controls="panel-q1">
+            <span class="material-symbols-rounded" aria-hidden="true">looks_one</span><span>I Quincena</span></a>
+        </li>
+        <li><a class="sidelink" role="tab" href="#q2" data-section="q2" aria-controls="panel-q2">
+            <span class="material-symbols-rounded" aria-hidden="true">looks_two</span><span>II Quincena</span></a>
+        </li>
+      </ul>
+    </aside>
+
+    <section class="config__main">
+      <div class="header-area">
+        <div class="title-line">
+          <h1 id="page-title">Control de pagos</h1>
+          <span id="period-badge" class="period-badge"></span>
+        </div>
+        <div class="actions">
+          <button id="btn-clone-prev" class="btn">
+            <span class="material-symbols-rounded">content_copy</span> Cargar pagos del mes anterior
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel: Formulario -->
+      <section id="panel-form" class="panel" role="tabpanel" data-section="form">
+        <header class="panel__header">
+          <h2 style="margin:0">Nuevo pago</h2>
+        </header>
+        <div class="panel__body">
+          <section class="card-form" aria-labelledby="form-title">
+            <header id="form-title">Nuevo pago</header>
+            <div class="body">
+              <form id="pay-form">
+                <input type="hidden" name="id" />
+                <div class="row">
+                  <div class="field">
+                    <label>Fecha de pago *</label>
+                    <input type="date" name="fecha" required />
+                  </div>
+                  <div class="field">
+                    <label>Nombre del pago *</label>
+                    <input type="text" name="nombre_pago" required maxlength="120"
+                      placeholder="Ej.: Alquiler, Luz, Internet..." />
+                  </div>
+                  <div class="field">
+                    <label>Usuario al que se le deduce *</label>
+                    <select name="usuario_deducido_id" required></select>
+                  </div>
+                  <div class="field">
+                    <label>Usuario responsable del pago *</label>
+                    <select name="usuario_responsable_id" required></select>
+                  </div>
+                  <div class="field">
+                    <label>Monto *</label>
+                    <input type="number" name="monto" required min="0" step="0.01" />
+                  </div>
+                </div>
+                <div class="form-actions" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem">
+                  <button class="btn" id="btn-save" type="submit"><span class="material-symbols-rounded">save</span>
+                    Guardar</button>
+                  <button class="btn ghost" id="btn-clear" type="button"><span
+                      class="material-symbols-rounded">backspace</span> Limpiar</button>
+                </div>
+              </form>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- Panel: I Quincena -->
+      <section id="panel-q1" class="panel" role="tabpanel" data-section="q1" hidden>
+        <header class="panel__header">
+          <h2 style="margin:0">I Quincena (15 – fin de mes)</h2>
+          <div class="header__spacer"></div>
+          <div class="kpis"><span id="q1-total">Total: —</span></div>
+        </header>
+        <!-- Subtabla salarios por usuario (I Quincena) -->
+        <!-- Subtabla salarios por usuario (I Quincena) -->
+        <div class="subs-wrap">
+          <header>Salarios vs Pagos — I Quincena</header>
+          <div class="body subs-layout">
+            <!-- Resumen de pases I quincena -->
+            <div class="transfers-box" id="q1-transfers"></div>
+
+            <!-- Tabla salarios vs pagos I quincena -->
+            <div class="table-wrap">
+              <table class="subs-table" id="q1-subs">
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th class="num">Salario de quincena</th>
+                    <th class="num">Pagos en quincena</th>
+                    <th class="num">Balance</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="panel__body">
+          <div class="table-wrap table-scroll">
+            <table id="tbl-q1">
+              <thead>
+                <tr>
+                  <th data-sort="fecha">Fecha</th>
+                  <th>Pago</th>
+                  <th>Deducido a</th>
+                  <th>Responsable</th>
+                  <th class="monto">Monto</th>
+                  <th>Estado</th>
+                  <th class="acciones">Acciones</th>
+
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="empty" id="q1-empty" hidden>Sin pagos en esta quincena.</div>
+        </div>
+      </section>
+
+      <!-- Panel: II Quincena -->
+      <section id="panel-q2" class="panel" role="tabpanel" data-section="q2" hidden>
+        <header class="panel__header">
+          <h2 style="margin:0">II Quincena (1 – 14)</h2>
+          <div class="header__spacer"></div>
+          <div class="kpis"><span id="q2-total">Total: —</span></div>
+        </header>
+        <!-- Subtabla salarios por usuario (II Quincena) -->
+        <!-- Subtabla salarios por usuario (II Quincena) -->
+        <div class="subs-wrap">
+          <header>Salarios vs Pagos — II Quincena</header>
+          <div class="body subs-layout">
+            <!-- Resumen de pases II quincena -->
+            <div class="transfers-box" id="q2-transfers"></div>
+
+            <!-- Tabla salarios vs pagos II quincena -->
+            <div class="table-wrap">
+              <table class="subs-table" id="q2-subs">
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th class="num">Salario de quincena</th>
+                    <th class="num">Pagos en quincena</th>
+                    <th class="num">Balance</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="panel__body">
+          <div class="table-wrap table-scroll">
+            <table id="tbl-q2">
+              <thead>
+                <tr>
+                  <th data-sort="fecha">Fecha</th>
+                  <th>Pago</th>
+                  <th>Deducido a</th>
+                  <th>Responsable</th>
+                  <th class="monto">Monto</th>
+                  <th>Estado</th>
+                  <th class="acciones">Acciones</th>
+
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="empty" id="q2-empty" hidden>Sin pagos en esta quincena.</div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Modal fallback accesible -->
+  <dialog id="fallbackModal" class="bpzf-modal" aria-modal="true" aria-labelledby="fallbackTitle">
+    <div class="modal-head">
+      <h3 id="fallbackTitle"></h3>
+      <button type="button" id="fallbackClose" class="btn ghost" aria-label="Cerrar">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <div class="modal-body" id="fallbackBody"></div>
+    <div class="modal-foot" id="fallbackFoot"></div>
+  </dialog>
+
+  <!-- App bootstrap -->
+  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/supabase.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/utils.js"></script>
+  <script type="module" src="js/period.js"></script>
+  <script type="module" src="js/pagos.js?v=1914"></script>
+  <script type="module" src="js/section-nav.js"></script>
+
+  <script>
+    // Topbar / tema / logout
+    document.querySelectorAll('.mainnav__link').forEach(a => { if (location.pathname.endsWith(a.getAttribute('href'))) a.classList.add('is-active'); });
+    const savedTheme = localStorage.getItem('bpz_theme'); if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    document.getElementById('theme-toggle')?.addEventListener('click', () => {
+      const root = document.documentElement; const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+      root.dataset.theme = next; localStorage.setItem('bpz_theme', next);
+    });
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      try { const { signOut } = await import('./js/auth.js'); await signOut(); } catch { location.href = 'login.html'; }
+    });
+  </script>
+  <script type="module">
+    import { mountTopbar } from './js/topbar.js';
+    mountTopbar({ active: 'pagos.html', title: document.title });
+  </script>
+</body>
+
+</html>
