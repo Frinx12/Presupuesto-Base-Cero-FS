@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="css/config-sidebar.css" />
   <link rel="stylesheet" href="css/topbar.css" />
 
-   <style>
+  <style>
     /* =================== Utilidades locales =================== */
     .subheader {
       display: flex;
@@ -292,11 +292,10 @@
     }
 
     /* =========================================================
-     AJUSTES ESPECÍFICOS PARA "RESUMEN BASE CERO"
-     (NO TOCA EL DETALLE)
-     ========================================================= */
+   AJUSTES ESPECÍFICOS PARA "RESUMEN BASE CERO"
+   ========================================================= */
 
-    /* En el resumen NO queremos header sticky ni sombra */
+    /* En desktop: tabla normal, sin header sticky raro en resumen */
     #panel-resumen .table-wrap--budget thead th {
       position: static;
     }
@@ -305,88 +304,118 @@
       box-shadow: none;
     }
 
-    /* Texto un poco más compacto */
+    /* Texto un poco más compacto en el resumen */
     #panel-resumen .table--budget th,
     #panel-resumen .table--budget td {
       font-size: .8rem;
     }
 
-    /* Rubro: puede hacer salto de línea, alineado a la izquierda */
+    /* Rubro puede hacer salto de línea */
     #panel-resumen .table--budget th:first-child,
     #panel-resumen .table--budget td:first-child {
       white-space: normal;
       text-align: left;
     }
 
-    /* Resto de columnas: números alineados a la derecha, sin wrap */
+    /* Resto de columnas con números a la derecha */
     #panel-resumen .table--budget th:not(:first-child),
     #panel-resumen .table--budget td:not(:first-child) {
       white-space: nowrap;
       text-align: right;
     }
 
-    /* En el resumen no necesitamos límite de altura ni scroll vertical interno */
+    /* En resumen no limitamos alto ni metemos scroll vertical interno */
     #panel-resumen .table-wrap--budget {
       max-height: none;
       overflow-y: visible;
     }
 
-    /* --------- VISTA MÓVIL: solo afecta al RESUMEN --------- */
+    /* =========================
+   VERSIÓN "CARDS" EN CELULAR – SOLO RESUMEN
+   ========================= */
     @media (max-width: 768px) {
 
-      /* Scroll horizontal solo en el resumen */
+      /* Nada de scroll horizontal para el resumen */
       #panel-resumen .table-wrap--budget {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        overflow-x: visible;
       }
 
-      /* Que el resumen tenga algo más de ancho lógico */
-      #panel-resumen .table-wrap--budget table {
-        min-width: 640px;
+      /* Ocultamos el thead, vamos a dibujar las etiquetas con ::before */
+      #tabla-resumen thead {
+        display: none;
       }
 
-      /* Columnas un poco más juntas en resumen (sin tocar detalle) */
-      #panel-resumen .table--budget th,
-      #panel-resumen .table--budget td {
-        padding: .25rem .35rem;
+      /* El cuerpo se vuelve un grid de tarjetas */
+      #tabla-resumen tbody {
+        display: grid;
+        gap: .6rem;
       }
 
-      /* Columna RUBRO fija y algo más angosta */
-      #panel-resumen col.col--rubro {
-        width: 120px;
-      }
-
-      /* Columna RUBRO fija: encabezado por encima del cuerpo */
-      #panel-resumen .table--budget thead th:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 4;
-        /* header por encima */
-        background: var(--surface-2);
-      }
-
-      #panel-resumen .table--budget tbody td:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 3;
-        /* filas debajo del header */
+      /* Cada fila (Ingresos, Ahorros, etc.) = una card */
+      #tabla-resumen tbody tr {
+        display: block;
+        padding: .6rem .75rem;
+        border-radius: .75rem;
         background: color-mix(in srgb, var(--surface-2) 96%, black 4%);
+        border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
       }
 
-      /* Hover solo para el cuerpo, para que no manche el header al pasar */
-      #panel-resumen .table--budget tbody tr:hover td:first-child {
-        background: color-mix(in srgb, var(--surface-2) 60%, black 5%);
+      /* Celdas dentro de la card */
+      #tabla-resumen tbody tr td {
+        padding: .15rem 0;
+        border: 0;
+        font-size: .85rem;
       }
 
-
-      /* Fondo coherente para la celda fija en el cuerpo */
-      #panel-resumen .table--budget tbody td:first-child {
-        background: color-mix(in srgb, var(--surface-2) 96%, black 4%);
+      /* Rubro como título de la tarjeta */
+      #tabla-resumen tbody tr td:first-child {
+        font-weight: 600;
+        margin-bottom: .25rem;
       }
 
-      /* Y en hover no se vea un recorte raro */
-      #panel-resumen .table--budget tbody tr:hover td:first-child {
-        background: color-mix(in srgb, var(--surface-2) 60%, black 5%);
+      /* Filas "Presupuesto / Real / Estatus / Balance" como dos columnas: etiqueta + valor */
+      #tabla-resumen tbody tr td:nth-child(2),
+      #tabla-resumen tbody tr td:nth-child(3),
+      #tabla-resumen tbody tr td:nth-child(4),
+      #tabla-resumen tbody tr td:nth-child(5) {
+        display: flex;
+        justify-content: space-between;
+        gap: .5rem;
+      }
+
+      #tabla-resumen tbody tr td:nth-child(2)::before {
+        content: "Presupuesto";
+        color: var(--muted);
+      }
+
+      #tabla-resumen tbody tr td:nth-child(3)::before {
+        content: "Real";
+        color: var(--muted);
+      }
+
+      #tabla-resumen tbody tr td:nth-child(4)::before {
+        content: "Estatus";
+        color: var(--muted);
+      }
+
+      #tabla-resumen tbody tr td:nth-child(5)::before {
+        content: "Balance";
+        color: var(--muted);
+      }
+
+      /* Última fila (Neto esperado base cero) tiene un solo <td colspan="5">
+     La estilizamos como texto aparte debajo de las cards */
+      #tabla-resumen tbody tr:last-child {
+        margin-top: .25rem;
+        padding: 0;
+        background: transparent;
+        border: 0;
+      }
+
+      #tabla-resumen tbody tr:last-child td {
+        display: block;
+        padding: .25rem 0 0;
+        border: 0;
       }
     }
 
@@ -646,5 +675,6 @@
 
 
 </html>
+
 
 
