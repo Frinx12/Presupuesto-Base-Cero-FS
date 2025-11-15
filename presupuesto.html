@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="css/config-sidebar.css" />
   <link rel="stylesheet" href="css/topbar.css" />
 
-     <style>
+   <style>
     /* =================== Utilidades locales =================== */
     .subheader {
       display: flex;
@@ -356,12 +356,28 @@
         width: 120px;
       }
 
-      #panel-resumen .table--budget th:first-child,
-      #panel-resumen .table--budget td:first-child {
+      /* Columna RUBRO fija: encabezado por encima del cuerpo */
+      #panel-resumen .table--budget thead th:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 4;
+        /* header por encima */
+        background: var(--surface-2);
+      }
+
+      #panel-resumen .table--budget tbody td:first-child {
         position: sticky;
         left: 0;
         z-index: 3;
+        /* filas debajo del header */
+        background: color-mix(in srgb, var(--surface-2) 96%, black 4%);
       }
+
+      /* Hover solo para el cuerpo, para que no manche el header al pasar */
+      #panel-resumen .table--budget tbody tr:hover td:first-child {
+        background: color-mix(in srgb, var(--surface-2) 60%, black 5%);
+      }
+
 
       /* Fondo coherente para la celda fija en el cuerpo */
       #panel-resumen .table--budget tbody td:first-child {
@@ -470,7 +486,6 @@
       }
     }
   </style>
-
 
 
 </head>
@@ -631,4 +646,5 @@
 
 
 </html>
+
 
