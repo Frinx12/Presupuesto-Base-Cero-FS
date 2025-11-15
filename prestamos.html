@@ -21,152 +21,213 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Material+Symbols+Rounded"
     rel="stylesheet">
 
-  <style>
-    .page-note {
-      display: flex;
-      gap: .75rem;
-      align-items: flex-start;
-      padding: .75rem 1rem;
-      margin: .5rem 0 1rem;
-      border: 1px dashed var(--border);
-      border-radius: .75rem;
-      background: color-mix(in srgb, var(--surface-2) 85%, transparent);
-      color: var(--muted);
-    }
+<style>
+  .page-note {
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+    padding: .75rem 1rem;
+    margin: .5rem 0 1rem;
+    border: 1px dashed var(--border);
+    border-radius: .75rem;
+    background: color-mix(in srgb, var(--surface-2) 85%, transparent);
+    color: var(--muted);
+  }
 
-    .actions {
-      display: flex;
-      gap: .5rem;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: .75rem
-    }
+  .actions {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: .75rem;
+  }
+
+  .grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 1rem;
+  }
+
+  .empty {
+    border: 2px dashed var(--border);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  /* Modal fallback */
+  dialog.bpzf-modal::backdrop {
+    background: color-mix(in oklab, black 35%, transparent);
+  }
+
+  dialog.bpzf-modal {
+    border: none;
+    border-radius: 1rem;
+    padding: 0;
+    width: min(920px, 94vw);
+    background: var(--surface-2);
+    color: var(--fg);
+  }
+
+  .modal-head {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-body {
+    padding: 1rem;
+    max-height: min(70vh, 65rem);
+    overflow: auto;
+  }
+
+  .modal-foot {
+    padding: .75rem 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: .5rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  /* Fallback accesible para cualquier botón local que aparezca en el futuro */
+  button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--focus);
+  }
+
+  /* ======================
+     CARD DE PRÉSTAMO
+  ======================= */
+
+  .loan-card {
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    border-radius: 16px;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--surface-2) 92%, transparent);
+    font-size: .92rem;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+  }
+
+  .loan-card header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+  }
+
+  .loan-title {
+    display: flex;
+    gap: .4rem;
+    align-items: center;
+    font-weight: 600;
+  }
+
+  .loan-title .material-symbols-rounded {
+    font-size: 1.1rem;
+  }
+
+  .loan-body {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: .75rem 1.25rem;
+  }
+
+  .loan-body .meta > div {
+    display: flex;
+    gap: .35rem;
+    align-items: center;
+    line-height: 1.3;
+  }
+
+  .loan-body .meta > div span:first-child.material-symbols-rounded {
+    font-size: 1rem;
+  }
+
+  .kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem;
+  }
+
+  .kpi {
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: .55rem .65rem;
+  }
+
+  .kpi .k {
+    font-size: .8rem;
+    color: var(--muted);
+  }
+
+  .kpi .v {
+    font-weight: 600;
+  }
+
+  .loan-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: .25rem;
+  }
+
+  .loan-footer .period {
+    font-size: .8rem;
+    color: var(--muted);
+  }
+
+  /* ======================
+     VISTA MÓVIL
+  ======================= */
+  @media (max-width: 720px) {
 
     .grid-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-      gap: 1rem
-    }
-
-    .empty {
-      border: 2px dashed var(--border);
-      border-radius: 1rem;
-      padding: 2rem;
-      text-align: center;
-      color: var(--muted)
-    }
-
-    /* Modal fallback */
-    dialog.bpzf-modal::backdrop {
-      background: color-mix(in oklab, black 35%, transparent)
-    }
-
-    dialog.bpzf-modal {
-      border: none;
-      border-radius: 1rem;
-      padding: 0;
-      width: min(920px, 94vw);
-      background: var(--surface-2);
-      color: var(--fg)
-    }
-
-    .modal-head {
-      padding: 1rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center
-    }
-
-    .modal-body {
-      padding: 1rem;
-      max-height: min(70vh, 65rem);
-      overflow: auto
-    }
-
-    .modal-foot {
-      padding: .75rem 1rem;
-      border-top: 1px solid var(--border);
-      display: flex;
-      gap: .5rem;
-      justify-content: flex-end;
-      flex-wrap: wrap
-    }
-
-    /* Fallback accesible para cualquier botón local que aparezca en el futuro */
-    button:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px var(--focus)
+      grid-template-columns: 1fr;
+      gap: .75rem;
     }
 
     .loan-card {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      background: var(--surface-2);
+      padding: .9rem .85rem;
+      border-radius: 18px;
+      gap: .65rem;
     }
 
     .loan-card header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: .5rem;
-    }
-
-    .loan-title {
-      display: flex;
-      gap: .5rem;
-      align-items: center
+      align-items: flex-start;
+      flex-direction: column;
     }
 
     .loan-body {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: .75rem;
     }
 
-    .loan-body .meta>div {
-      display: flex;
-      gap: .35rem;
-      align-items: center;
-      line-height: 1.35
-    }
-
     .kpis {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .5rem
-    }
-
-    .kpi {
-      background: color-mix(in srgb, var(--surface) 85%, transparent);
-      border: 1px dashed var(--border);
-      border-radius: 10px;
-      padding: .5rem .6rem
-    }
-
-    .kpi .k {
-      font-size: .82rem;
-      color: var(--muted)
-    }
-
-    .kpi .v {
-      font-weight: 600
+      grid-template-columns: 1fr;
     }
 
     .loan-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: .5rem
+      flex-direction: column;
+      align-items: stretch;
+      margin-top: .5rem;
     }
 
-    @media (max-width: 720px) {
-      .loan-body {
-        grid-template-columns: 1fr;
-      }
+    .loan-footer .btn {
+      width: 100%;
+      justify-content: center;
     }
-  </style>
+  }
+</style>
+
+  
 </head>
 
 <body>
@@ -292,5 +353,6 @@
     mountTopbar({ active: 'prestamos.html', title: document.title });
   </script>
 </body>
+
 
 </html>
