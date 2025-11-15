@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="css/config-sidebar.css" />
   <link rel="stylesheet" href="css/topbar.css" />
 
-  <style>
+   <style>
     /* =================== Utilidades locales =================== */
     .subheader {
       display: flex;
@@ -145,15 +145,16 @@
       transform-origin: left;
     }
 
-    /* =================== Tabla de presupuesto =================== */
+    /* =================== Tabla de presupuesto (genérica) =================== */
 
     .table-wrap--budget {
       max-height: 60vh;
+      overflow-x: auto;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       position: relative;
       border-radius: .75rem;
       border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
-      overflow: hidden;
     }
 
     .table-wrap--budget table {
@@ -162,7 +163,7 @@
       width: 100%;
     }
 
-    /* Encabezado fijo */
+    /* Encabezado fijo por defecto (detalle) */
     .table-wrap--budget thead th {
       position: sticky;
       top: 0;
@@ -181,7 +182,6 @@
       pointer-events: none;
     }
 
-    /* Quitamos look “card” genérico para esta tabla */
     .table.table--budget tbody tr {
       background: transparent !important;
       box-shadow: none !important;
@@ -200,14 +200,12 @@
       border-left: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
     }
 
-    /* Hover sólo en filas de rubros */
     .table.table--budget tbody tr:not(.section-head):hover td {
       background: color-mix(in srgb, var(--surface-2) 60%, black 5%);
     }
 
-    /* =================== Categorías (INGRESOS, AHORROS, etc.) =================== */
+    /* =================== Categorías (detalle) =================== */
 
-    /* Fila de categoría, justo bajo “Rubro” */
     .table.table--budget tbody tr.section-head td {
       padding: .40rem .6rem .30rem;
       font-size: .8rem;
@@ -264,9 +262,7 @@
       background: color-mix(in srgb, var(--surface) 80%, transparent);
     }
 
-    /* =================== Rubros (subniveles dentro de cada categoría) =================== */
-
-    /* Columna de rubro: td con clases col-rubro / col-rubro--item */
+    /* =================== Rubros (detalle) =================== */
 
     .col-rubro {
       display: flex;
@@ -275,7 +271,6 @@
       min-width: 0;
     }
 
-    /* Rubros normales: sangrado respecto a la categoría */
     .col-rubro--item .rubro-title {
       margin-left: 1.6rem;
       font-weight: 500;
@@ -284,12 +279,10 @@
       overflow: hidden;
     }
 
-    /* Para que el primer rubro se pegue visualmente a su categoría */
     .table.table--budget tbody tr.section-head+tr>td {
       border-top: none !important;
     }
 
-    /* Línea vertical muy suave que marca la jerarquía (no es viñeta) */
     .col-rubro--item::before {
       content: "";
       width: 1px;
@@ -299,101 +292,66 @@
     }
 
     /* =========================================================
-       VISTA RESPONSIVE (MÓVIL) PARA PRESUPUESTO DETALLADO
-       Tabla en desktop, tarjetas en móvil
-       ========================================================= */
+   AJUSTES ESPECÍFICOS PARA "RESUMEN BASE CERO"
+   ========================================================= */
 
-    /* Por defecto: usamos solo tabla, ocultamos tarjetas */
-    #presu-cards {
-      display: none;
+    /* Quitar sticky del header en el resumen */
+    #panel-resumen .table-wrap--budget thead th {
+      position: static;
     }
 
-    .presu-card {
-      border-radius: 12px;
-      border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
-      background: color-mix(in srgb, var(--surface-2) 96%, black 4%);
-      padding: .7rem .8rem;
-      display: grid;
-      gap: .35rem;
+    #panel-resumen .table-wrap--budget thead::after {
+      box-shadow: none;
     }
 
-    .presu-card__head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: .5rem;
+    /* Texto un poco más compacto */
+    #panel-resumen .table--budget th,
+    #panel-resumen .table--budget td {
+      font-size: .8rem;
     }
 
-    .presu-card__section {
-      font-size: .75rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--muted);
+    /* RUBRO: puede hacer salto de línea, alineado a la izquierda */
+    #panel-resumen .table--budget th:first-child,
+    #panel-resumen .table--budget td:first-child {
+      white-space: normal;
+      text-align: left;
     }
 
-    .presu-card__rubro {
-      font-size: .9rem;
-      font-weight: 500;
-      margin-top: .05rem;
-      word-break: break-word;
-    }
-
-    .presu-card__status {
-      font-size: .85rem;
-      font-weight: 600;
+    /* Resto de columnas (Presupuesto, Real, Estatus, Balance):
+   sin salto de línea y alineadas a la derecha */
+    #panel-resumen .table--budget th:not(:first-child),
+    #panel-resumen .table--budget td:not(:first-child) {
+      white-space: nowrap;
       text-align: right;
     }
 
-    .presu-card__rows {
-      display: grid;
-      gap: .15rem;
-      font-size: .82rem;
-    }
-
-    .presu-card__row {
-      display: flex;
-      justify-content: space-between;
-      gap: .5rem;
-    }
-
-    .presu-card__row-label {
-      color: var(--muted);
-    }
-
-    .presu-card__row-value {
-      font-weight: 500;
-      text-align: right;
-    }
-
-    .presu-card__actions {
-      margin-top: .2rem;
-      display: flex;
-      justify-content: flex-end;
-      gap: .25rem;
-    }
-
-    .presu-card__actions .btn {
-      padding-inline: .4rem;
-    }
-
-    /* --------- PUNTO DE CORTE: MÓVIL --------- */
+    /* --- Vista móvil: scroll horizontal + columna Rubro fija --- */
     @media (max-width: 768px) {
-
-      /* Ocultamos SOLO la tabla de detalle, no el resumen */
-      #panel-detalle .table-wrap--budget {
-        display: none;
+      #panel-resumen .table-wrap--budget {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
-      #presu-cards {
-        display: grid;
-        gap: .6rem;
+      #panel-resumen .table-wrap--budget table {
+        min-width: 680px;
+        /* puedes bajar a 640 si quieres menos scroll */
       }
-    }
 
-    /* En desktop, nos aseguramos de que las tarjetas no estorben */
-    @media (min-width: 769px) {
-      #presu-cards {
-        display: none;
+      /* 1) Columnas más juntas (menos padding en cel) */
+      #panel-resumen .table--budget th,
+      #panel-resumen .table--budget td {
+        padding: .25rem .35rem;
+      }
+
+      /* 2) Fijar columna RUBRO mientras haces scroll horizontal */
+      #panel-resumen .table--budget th:first-child,
+      #panel-resumen .table--budget td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: var(--surface-2);
+        /* separador sutil contra el resto de columnas */
+        border-right: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
       }
     }
   </style>
@@ -555,5 +513,6 @@
     mountTopbar({ active: 'presupuesto.html', title: document.title });
   </script>
 </body>
+
 
 </html>
